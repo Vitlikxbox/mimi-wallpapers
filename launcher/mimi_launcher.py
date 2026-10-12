@@ -524,7 +524,15 @@ class Launcher(AnimatedBackground):
             if vid and os.path.exists(preview_path(vid)):
                 self.play(preview_path(vid))
                 return
-        self.play(asset('launcher_bg.mp4', 'bg_public.webp'))
+        bg = asset('launcher_bg.mp4')
+        if bg:
+            self.play(bg)
+            return
+        thumbs = [os.path.join(THUMB_DIR, i['id'] + '.jpg') for i in self.items]
+        thumbs = [t for t in thumbs if os.path.exists(t)]
+        if not self.play_slides(thumbs):                 # пока превью не загрузились — своя анимация
+            self.play(asset('bg_public.webp'))
+            QTimer.singleShot(6000, self._play_bg)
 
     def _load_thumbs(self):
         for it in self.items:

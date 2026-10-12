@@ -2,7 +2,7 @@
 
 LANGS = {'ru': 'Русский', 'en': 'English', 'es': 'Español'}
 COMPANY = 'MimiFanStudio'
-VERSION = '1.2'
+VERSION = '1.3'
 TYPH_CHANNEL_ID = 'UCdARcqAEmGmU9ppAx8KHiVQ'      # канал Typh на YouTube (@crispytyph)
 TYPH_HANDLE = '@crispytyph'
 
@@ -115,6 +115,8 @@ T = {
     'st_files': {'ru': 'Копирую файлы…', 'en': 'Copying files…', 'es': 'Copiando archivos…'},
     'st_shortcuts': {'ru': 'Создаю ярлыки…', 'en': 'Creating shortcuts…', 'es': 'Creando accesos directos…'},
     'st_register': {'ru': 'Регистрирую программу…', 'en': 'Registering the app…', 'es': 'Registrando la aplicación…'},
+    'st_video': {'ru': 'Ставлю первые обои с Mimi…', 'en': 'Setting up the first Mimi wallpaper…',
+                 'es': 'Preparando el primer fondo de Mimi…'},
     'st_dep': {'ru': 'Устанавливаю {n}…', 'en': 'Installing {n}…', 'es': 'Instalando {n}…'},
     'st_dep_ok': {'ru': '{n} уже есть', 'en': '{n} already installed', 'es': '{n} ya está instalado'},
     'done_title': {'ru': 'Готово!', 'en': 'All done!', 'es': '¡Listo!'},

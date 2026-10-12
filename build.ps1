@@ -33,6 +33,14 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 # 3. установщик (один exe)
 $data = @('--add-data', "$zip;.", '--add-data', "$R\assets\bg_public.webp;.", '--add-data', "$R\assets\icon.ico;.", '--add-data', "$R\assets\icon.png;.")
 foreach ($f in 'setup_bg.webp', 'mimi.ico', 'mimi.png') { if ($private -contains $f) { $data += @('--add-data', "$R\$f;.") } }
+# личная сборка: первый ролик вшивается в установщик (сразу на обои, без скачивания и VPN). В публичную — нельзя.
+$first = (Get-Content "$R\catalog.json" -Raw | ConvertFrom-Json)[0].id
+$vdir = "$env:LOCALAPPDATA\MimiWallpapers\videos"
+if (-not $Public -and (Test-Path "$vdir\$first.mkv")) {
+    $data += @('--add-data', "$vdir\$first.mkv;.")
+    if (Test-Path "$vdir\${first}_preview.mp4") { $data += @('--add-data', "$vdir\${first}_preview.mp4;.") }
+}
+$data += @('--add-data', "$R\catalog.json;.")
 & $PI @common --onefile --name $name --distpath "$R\installer" @data "$R\launcher\setup.py"
 
 Get-ChildItem "$R\installer\$name.exe" | Select-Object Name, @{n = 'MB'; e = { [math]::Round($_.Length / 1MB, 1) } }

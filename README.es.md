@@ -18,7 +18,7 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 - **Sonido sí/no** y volumen del fondo. Por defecto solo suena en el escritorio vacío; activa **«Sonido en todas partes»** en Ajustes para oírlo en cualquier ventana o pestaña.
 - **Iniciar con Windows**: tu último fondo vuelve tras reiniciar.
 - **Idiomas**: Español, English, Русский.
-- **Instalador**: animado y con condiciones de uso. Instala por usuario (sin permisos de administrador) y obtiene las herramientas que falten con `winget`. Se desinstala desde *Aplicaciones*.
+- **Instalador con Mimi**: desde el primer segundo muestra una presentación con las miniaturas de los videos de Typh (cargadas desde YouTube), con condiciones de uso. Instala por usuario (sin permisos de administrador) y obtiene las herramientas que falten con `winget`. Se desinstala desde *Aplicaciones*.
 
 ## Instalación
 1. Descarga `MimiWallpapers_Setup_public.exe` desde [Releases](../../releases).

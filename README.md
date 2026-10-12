@@ -18,7 +18,7 @@ A free, non-commercial fan project by **MimiFanStudio**.
 - **Sound on/off** and wallpaper volume. By default sound plays only on the empty desktop; turn on **Sound everywhere** in Settings to hear it in any window or browser tab.
 - **Start with Windows**: your last wallpaper comes back after a reboot.
 - **Languages**: English, Русский, Español.
-- **Setup wizard**: animated, with terms of use. It installs per user (no admin rights) and fetches missing tools via `winget`. The app can be uninstalled from *Apps & features*.
+- **Setup wizard with Mimi**: a slideshow of Typh's video thumbnails (loaded from YouTube) plays from the first second, with terms of use. It installs per user (no admin rights) and fetches missing tools via `winget`. The app can be uninstalled from *Apps & features*.
 
 ## Install
 1. Download `MimiWallpapers_Setup_public.exe` from [Releases](../../releases).

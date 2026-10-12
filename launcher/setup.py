@@ -4,8 +4,11 @@
 Ставит программу в папку пользователя (без прав администратора), создаёт ярлыки, регистрирует удаление,
 при необходимости ставит Lively Wallpaper, yt-dlp и ffmpeg из официального каталога winget.
 """
+import json
 import os
+import shutil
 import subprocess
+import time
 import sys
 import winreg
 import zipfile
@@ -15,11 +18,33 @@ from PySide6.QtGui import QFont, QIcon, QPixmap
 from PySide6.QtWidgets import (QApplication, QCheckBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
                                QProgressBar, QPushButton, QStackedWidget, QTextBrowser, QVBoxLayout, QWidget)
 
-from common import (APP_NAME, CONFIG, DATA_DIR, LIVELY, NO_WINDOW, RES_DIR, STYLE, UNINSTALL_KEY, WINGET_LINKS,
-                    AnimatedBackground, asset, load_config, save_config, shortcut)
+from common import (APP_NAME, CONFIG, DATA_DIR, LIVELY, NO_WINDOW, RES_DIR, STYLE, UNINSTALL_KEY, VIDEO_DIR,
+                    WINGET_LINKS, AnimatedBackground, asset, fetch_thumbs, load_config, load_json, save_config,
+                    shortcut)
 from i18n import COMPANY, LANGS, TERMS, VERSION, tr
 
 DEFAULT_DIR = os.path.join(os.environ['LOCALAPPDATA'], 'Programs', 'Mimi Wallpapers')
+def catalog_ids():
+    return [v['id'] for v in load_json(os.path.join(RES_DIR, 'catalog.json'), [])]
+
+
+def bundled_video():
+    """Ролик, вшитый в установщик (только личная сборка): (id, видео, превью) или None."""
+    for vid in catalog_ids():
+        v = os.path.join(RES_DIR, vid + '.mkv')
+        if os.path.exists(v):
+            return vid, v, os.path.join(RES_DIR, vid + '_preview.mp4')
+    return None
+
+
+class ThumbLoader(QThread):
+    """Загружает превью роликов Typh с YouTube для фона установщика."""
+    loaded = Signal(list)
+
+    def run(self):
+        self.loaded.emit(fetch_thumbs(catalog_ids(), os.path.join(os.environ['TEMP'], 'MimiSetupThumbs')))
+
+
 DEPS = [  # (название, id в winget, проверка)
     ('yt-dlp', 'yt-dlp.yt-dlp', lambda: os.path.exists(os.path.join(WINGET_LINKS, 'yt-dlp.exe'))),
     ('ffmpeg', 'yt-dlp.FFmpeg', lambda: os.path.exists(os.path.join(WINGET_LINKS, 'ffmpeg.exe'))),
@@ -79,6 +104,15 @@ class Worker(QThread):
         cfg = load_config()
         cfg['lang'] = self.lang
         cfg['autostart'] = self.opts['autostart']
+        bv = bundled_video()
+        if bv:
+            self.progress.emit(75, t('st_video'))
+            vid, vfile, prev = bv
+            os.makedirs(VIDEO_DIR, exist_ok=True)
+            shutil.copyfile(vfile, os.path.join(VIDEO_DIR, vid + '.mkv'))
+            if os.path.exists(prev):
+                shutil.copyfile(prev, os.path.join(VIDEO_DIR, vid + '_preview.mp4'))
+            cfg['current'] = vid
         save_config(cfg)
         if self.opts['autostart']:
             startup = os.path.join(os.environ['APPDATA'], r'Microsoft\Windows\Start Menu\Programs\Startup')
@@ -101,6 +135,13 @@ class Worker(QThread):
                     self.progress.emit(base + step * min(0.9, 0.1 + tick * 0.01), t('st_dep', n=name))
                     self.msleep(500)
                 self.progress.emit(base + step, t('st_dep', n=name))
+        if bv and os.path.exists(LIVELY):                  # сразу ставим вшитый ролик на обои
+            self.progress.emit(99, t('st_video'))
+            if 'Lively.exe' not in subprocess.run(['tasklist', '/fi', 'imagename eq Lively.exe'], capture_output=True,
+                                                  text=True, creationflags=NO_WINDOW).stdout:
+                subprocess.Popen(['explorer.exe', LIVELY])
+                time.sleep(8)
+            subprocess.Popen([LIVELY, 'setwp', '--file', os.path.join(VIDEO_DIR, bv[0] + '.mkv')], creationflags=NO_WINDOW)
         self.progress.emit(100, '')
 
 
@@ -114,7 +155,12 @@ class Setup(AnimatedBackground):
             self.setWindowIcon(QIcon(icon))
         self.setFixedSize(960, 600)
         self.setStyleSheet(STYLE)
-        self.play(asset('setup_bg.webp', 'bg_public.webp', base=RES_DIR))
+        personal = asset('setup_bg.webp', base=RES_DIR)
+        self.play(personal or asset('bg_public.webp', base=RES_DIR))
+        if not personal:                                   # публичная сборка: Mimi из превью роликов на YouTube
+            self.thumbs = ThumbLoader()
+            self.thumbs.loaded.connect(self._on_thumbs)
+            self.thumbs.start()
         root = QHBoxLayout(self)
         root.setContentsMargins(36, 32, 36, 32)
         root.addStretch()
@@ -125,7 +171,7 @@ class Setup(AnimatedBackground):
         self.pv = QVBoxLayout(self.panel)
         self.pv.setContentsMargins(26, 24, 26, 22)
         head = QHBoxLayout()
-        face = QLabel()
+        self.face = face = QLabel()
         pm = QPixmap(asset('mimi.png', 'icon.png', base=RES_DIR))
         if not pm.isNull():
             face.setPixmap(pm.scaled(56, 56, Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -145,6 +191,15 @@ class Setup(AnimatedBackground):
 
     def t(self, k, **kw):
         return tr(k, self.lang, **kw)
+
+    def _on_thumbs(self, paths):
+        if not paths or not self.play_slides(paths):
+            return
+        pm = QPixmap(paths[0])
+        if not pm.isNull():
+            s = pm.height()
+            sq = pm.copy((pm.width() - s) // 2, 0, s, s).scaled(56, 56, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.face.setPixmap(sq)
 
     def _clear(self):
         while self.stack.count():

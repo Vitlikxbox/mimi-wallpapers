@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import sys
 
-from PySide6.QtCore import QProcess, Qt
+from PySide6.QtCore import QProcess, QRectF, Qt
 from PySide6.QtGui import QColor, QImage, QMovie, QPainter
 from PySide6.QtWidgets import QWidget
 
@@ -103,9 +103,31 @@ a { color: #ffb3dc; }
 '''
 
 
+def fetch_thumbs(ids, folder):
+    """Скачивает превью роликов с YouTube (i.ytimg.com) в folder; возвращает пути к готовым jpg.
+    Превью раздаёт сам YouTube — в программу и репозиторий они не вшиваются."""
+    import urllib.request
+    os.makedirs(folder, exist_ok=True)
+    out = []
+    for vid in ids:
+        dst = os.path.join(folder, vid + '.jpg')
+        if not os.path.exists(dst):
+            for name in ('maxresdefault', 'hqdefault'):
+                try:
+                    urllib.request.urlretrieve(f'https://i.ytimg.com/vi/{vid}/{name}.jpg', dst)
+                    break
+                except Exception:
+                    continue
+        if os.path.exists(dst) and os.path.getsize(dst) > 5000:
+            out.append(dst)
+    return out
+
+
 class AnimatedBackground(QWidget):
-    """Фон окна с Mimi: видео через ffmpeg (если есть) или анимированный WebP через QMovie (в установщике)."""
+    """Фон окна с Mimi: видео через ffmpeg, анимированный WebP через QMovie
+    или слайд-шоу из превью роликов с медленным наездом камеры и плавной сменой кадров."""
     BW, BH = 960, 540
+    SLIDE_MS, FADE_MS = 6500, 1200
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -113,6 +135,45 @@ class AnimatedBackground(QWidget):
         self.buf = b''
         self.bg = None
         self.movie = None
+        self.slides, self.slide_t = [], 0
+        self.slide_timer = None
+
+    def play_slides(self, paths):
+        imgs = [QImage(p) for p in paths]
+        imgs = [i for i in imgs if not i.isNull()]
+        if not imgs:
+            return False
+        self.stop()
+        self.slides, self.slide_t = imgs, 0
+        from PySide6.QtCore import QTimer
+        self.slide_timer = QTimer(self)
+        self.slide_timer.timeout.connect(self._tick)
+        self.slide_timer.start(33)
+        return True
+
+    def _tick(self):
+        self.slide_t += 33
+        self.update()
+
+    def _paint_slides(self, p):
+        n = len(self.slides)
+        i = (self.slide_t // self.SLIDE_MS) % n
+        local = self.slide_t % self.SLIDE_MS
+
+        def draw(img, t_ms, alpha):
+            zoom = 1.04 + 0.10 * (t_ms / self.SLIDE_MS)                  # медленный наезд
+            w, h = self.width(), self.height()
+            s = max(w / img.width(), h / img.height()) * zoom
+            dw, dh = img.width() * s, img.height() * s
+            pan = (t_ms / self.SLIDE_MS - 0.5) * 0.04 * w                  # лёгкий сдвиг
+            p.setOpacity(alpha)
+            p.drawImage(QRectF((w - dw) / 2 + pan, (h - dh) / 2, dw, dh), img)
+
+        draw(self.slides[i], local, 1.0)
+        if local > self.SLIDE_MS - self.FADE_MS and n > 1:                 # плавная смена на следующий кадр
+            a = (local - (self.SLIDE_MS - self.FADE_MS)) / self.FADE_MS
+            draw(self.slides[(i + 1) % n], local - self.SLIDE_MS, a)
+        p.setOpacity(1.0)
 
     def play(self, path):
         if not (path and os.path.exists(path)):
@@ -138,6 +199,10 @@ class AnimatedBackground(QWidget):
         if self.movie is not None:
             self.movie.stop()
             self.movie = None
+        if self.slide_timer is not None:
+            self.slide_timer.stop()
+            self.slide_timer = None
+        self.slides = []
 
     def _set(self, img):
         if not img.isNull():
@@ -160,7 +225,10 @@ class AnimatedBackground(QWidget):
     def paintEvent(self, e):
         p = QPainter(self)
         p.fillRect(self.rect(), QColor('#1a0f1f'))
-        if self.frame is not None:
+        if self.slides:
+            p.setRenderHint(QPainter.SmoothPixmapTransform)
+            self._paint_slides(p)
+        elif self.frame is not None:
             img = self.frame.scaled(self.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
             p.drawImage((self.width() - img.width()) // 2, (self.height() - img.height()) // 2, img)
         p.fillRect(self.rect(), QColor(20, 8, 26, 120))
