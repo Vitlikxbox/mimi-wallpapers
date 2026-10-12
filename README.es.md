@@ -15,7 +15,7 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 - **Descarga en máxima calidad**: hasta 4K a 60 fps con sonido, con [yt-dlp](https://github.com/yt-dlp/yt-dlp). La barra de progreso nunca retrocede.
 - **Fondo animado**: un clic pone el video en el escritorio en bucle, con [Lively Wallpaper](https://github.com/rocksdanister/lively) y decodificación por hardware.
 - **Pantalla de bloqueo**: eliges un fotograma con un deslizador y se aplica en resolución completa, sin permisos de administrador.
-- **Sonido sí/no** y volumen del fondo. El sonido solo suena cuando el escritorio está visible.
+- **Sonido sí/no** y volumen del fondo. Por defecto solo suena en el escritorio vacío; activa **«Sonido en todas partes»** en Ajustes para oírlo en cualquier ventana o pestaña.
 - **Iniciar con Windows**: tu último fondo vuelve tras reiniciar.
 - **Idiomas**: Español, English, Русский.
 - **Instalador**: animado y con condiciones de uso. Instala por usuario (sin permisos de administrador) y obtiene las herramientas que falten con `winget`. Se desinstala desde *Aplicaciones*.
@@ -27,6 +27,8 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 3. Abre **Mimi Wallpapers**, elige un video y pulsa **Descargar** → **Poner de fondo**.
 
 Requisitos: Windows 10/11 x64 y conexión a internet.
+
+> ⚠️ **Los videos se descargan de YouTube.** Si YouTube está bloqueado o ralentizado en tu país, los fondos **no se descargarán sin una VPN** (u otra forma de acceder a YouTube). Los fondos ya descargados siguen funcionando sin conexión.
 
 ## Compilar desde el código
 ```powershell
@@ -54,6 +56,7 @@ Sin `-Public`, la compilación puede incluir archivos de diseño personales (`la
 ```powershell
 .venv\Scripts\python tests\ui_test_launcher.py   # 15 comprobaciones
 .venv\Scripts\python tests\ui_test_setup.py      # 17 comprobaciones
+.venv\Scripts\python tests\ui_test_sound.py      # 5 comprobaciones
 ```
 
 ## Condiciones y licencia

@@ -2,7 +2,7 @@
 
 LANGS = {'ru': 'Русский', 'en': 'English', 'es': 'Español'}
 COMPANY = 'MimiFanStudio'
-VERSION = '1.1'
+VERSION = '1.2'
 TYPH_CHANNEL_ID = 'UCdARcqAEmGmU9ppAx8KHiVQ'      # канал Typh на YouTube (@crispytyph)
 TYPH_HANDLE = '@crispytyph'
 
@@ -73,6 +73,11 @@ T = {
     'frame_title': {'ru': 'Кадр для экрана блокировки', 'en': 'Lock screen frame', 'es': 'Fotograma para el bloqueo'},
     'frame_ok': {'ru': '🔒  Поставить этот кадр', 'en': '🔒  Use this frame', 'es': '🔒  Usar este fotograma'},
     'of': {'ru': 'из', 'en': 'of', 'es': 'de'},
+    'audio_everywhere': {'ru': 'Звук везде: и в окнах, и во вкладках (по умолчанию — только на рабочем столе)',
+                         'en': 'Sound everywhere: in windows and tabs too (default: desktop only)',
+                         'es': 'Sonido en todas partes: también en ventanas y pestañas (por defecto: solo en el escritorio)'},
+    'sound_setup': {'ru': 'Настраиваю звук в Lively…', 'en': 'Setting up sound in Lively…',
+                    'es': 'Configurando el sonido en Lively…'},
     'language': {'ru': 'Язык', 'en': 'Language', 'es': 'Idioma'},
     'volume': {'ru': 'Громкость обоев', 'en': 'Wallpaper volume', 'es': 'Volumen del fondo'},
     'restart_lang': {'ru': 'Лаунчер перезапустится на выбранном языке.', 'en': 'The launcher will restart in the selected language.',

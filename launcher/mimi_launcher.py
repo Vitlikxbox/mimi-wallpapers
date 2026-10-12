@@ -5,6 +5,7 @@
 
 Ключи запуска:  --apply-current (автозагрузка, без окна) · --download <id> · --uninstall
 """
+import json
 import os
 import re
 import subprocess
@@ -69,6 +70,33 @@ def lively_volume(v):
     subprocess.Popen([LIVELY, 'app', '--volume', str(int(v))], creationflags=NO_WINDOW)
 
 
+LIVELY_SETTINGS = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Lively Wallpaper', 'Settings.json')
+
+
+def lively_audio_ok(only_desktop, volume):
+    s = load_json(LIVELY_SETTINGS, {})
+    return s.get('AudioOnlyOnDesktop') == only_desktop and s.get('AudioVolumeGlobal') == int(volume)
+
+
+def lively_audio_setup(only_desktop, volume):
+    """Звук обоев в Lively: «только на рабочем столе» вкл/выкл и общая громкость.
+    Lively читает Settings.json при запуске и перезаписывает при выходе, поэтому: закрыть → править → запустить.
+    Возвращает True, если Lively перезапускалась (обои она восстановит сама)."""
+    if lively_audio_ok(only_desktop, volume) or not lively_ok():
+        return False
+    run(['taskkill', '/f', '/im', 'Lively.exe'])
+    time.sleep(1.5)
+    s = load_json(LIVELY_SETTINGS, {})
+    if not s:
+        return False
+    s['AudioOnlyOnDesktop'] = bool(only_desktop)
+    s['AudioVolumeGlobal'] = int(volume)
+    with open(LIVELY_SETTINGS, 'w', encoding='utf-8') as f:
+        json.dump(s, f, ensure_ascii=False, indent=2)
+    subprocess.Popen(['explorer.exe', LIVELY])            # без прав администратора, как обычный запуск
+    return True
+
+
 LOCK_PS = r'''
 Add-Type -AssemblyName System.Runtime.WindowsRuntime
 $asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
@@ -127,6 +155,8 @@ def apply_current():
     if p and lively_ok():
         if 'Lively.exe' not in run(['tasklist', '/fi', 'imagename eq Lively.exe']).stdout:
             subprocess.Popen([LIVELY], creationflags=NO_WINDOW)
+            time.sleep(8)
+        if cfg.get('sound') and lively_audio_setup(not cfg.get('audio_everywhere', False), cfg.get('volume', 60)):
             time.sleep(8)
         lively_set(p)
         time.sleep(3)
@@ -250,6 +280,9 @@ class SettingsDialog(QDialog):
         self.vol.valueChanged.connect(lambda v: self.vol_label.setText(f"{tr('volume', lang)}: {v}%"))
         self.vol_label.setText(f"{tr('volume', lang)}: {self.vol.value()}%")
         lay.addWidget(self.vol)
+        self.desk = QCheckBox(tr('audio_everywhere', lang))
+        self.desk.setChecked(cfg.get('audio_everywhere', False))
+        lay.addWidget(self.desk)
         lay.addSpacing(10)
         legal = QPushButton(tr('legal_link', lang))
         legal.setObjectName('ghost')
@@ -613,7 +646,7 @@ class Launcher(AnimatedBackground):
         if not (p and lively_ok()):
             return
         lively_set(p)
-        QTimer.singleShot(3000, lambda: lively_volume(self.cfg.get('volume', 60) if self.cfg.get('sound') else 0))
+        QTimer.singleShot(3000, self._sync_sound)
         self.cfg['current'] = self.selected
         save_config(self.cfg)
         if self.cfg.get('autostart', True):
@@ -648,8 +681,22 @@ class Launcher(AnimatedBackground):
     def toggle_sound(self):
         self.cfg['sound'] = not self.cfg.get('sound')
         save_config(self.cfg)
-        lively_volume(self.cfg.get('volume', 60) if self.cfg['sound'] else 0)
         self._update_sound_btn()
+        self._sync_sound()
+
+    def _sync_sound(self):
+        """Привести Lively к настройкам звука; если пришлось перезапустить Lively — вернуть обои и громкость."""
+        vol = self.cfg.get('volume', 60)
+        only_desk = not self.cfg.get('audio_everywhere', False)
+        if self.cfg.get('sound') and not lively_audio_ok(only_desk, vol):
+            self.msg.setText(self.t('sound_setup'))
+            QApplication.processEvents()
+            if lively_audio_setup(only_desk, vol):
+                cur = video_path(self.cfg.get('current')) if self.cfg.get('current') else None
+                QTimer.singleShot(7000, lambda: (cur and lively_set(cur)))
+                QTimer.singleShot(10000, lambda: (lively_volume(vol), self.msg.setText('')))
+                return
+        lively_volume(vol if self.cfg.get('sound') else 0)
 
     def toggle_autostart(self, on):
         self.cfg['autostart'] = on
@@ -663,10 +710,11 @@ class Launcher(AnimatedBackground):
         if dlg.exec() != QDialog.Accepted:
             return
         self.cfg['volume'] = dlg.vol.value()
+        self.cfg['audio_everywhere'] = dlg.desk.isChecked()
         new_lang = dlg.lang.currentData()
         save_config(self.cfg)
         if self.cfg.get('sound'):
-            lively_volume(self.cfg['volume'])
+            self._sync_sound()
         if new_lang != self.lang:
             self.cfg['lang'] = new_lang
             save_config(self.cfg)

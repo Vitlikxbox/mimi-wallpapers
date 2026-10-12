@@ -15,7 +15,7 @@ A free, non-commercial fan project by **MimiFanStudio**.
 - **Best quality download**: up to 4K 60 fps with sound, via [yt-dlp](https://github.com/yt-dlp/yt-dlp). The progress bar never goes backwards.
 - **Live wallpaper**: one click sets the video on your desktop in a loop, via [Lively Wallpaper](https://github.com/rocksdanister/lively), with hardware decoding.
 - **Lock screen**: pick any frame with a slider; it is set in full resolution with no admin rights.
-- **Sound on/off** and wallpaper volume. Sound plays only when the desktop is visible.
+- **Sound on/off** and wallpaper volume. By default sound plays only on the empty desktop; turn on **Sound everywhere** in Settings to hear it in any window or browser tab.
 - **Start with Windows**: your last wallpaper comes back after a reboot.
 - **Languages**: English, Русский, Español.
 - **Setup wizard**: animated, with terms of use. It installs per user (no admin rights) and fetches missing tools via `winget`. The app can be uninstalled from *Apps & features*.
@@ -27,6 +27,8 @@ A free, non-commercial fan project by **MimiFanStudio**.
 3. Open **Mimi Wallpapers**, pick a video, then **Download** → **Set as wallpaper**.
 
 Requirements: Windows 10/11 x64, internet connection.
+
+> ⚠️ **Videos are downloaded from YouTube.** If YouTube is blocked or slowed down in your country, wallpapers **will not download without a VPN** (or another way to reach YouTube). Already downloaded wallpapers keep working offline.
 
 ## Build from source
 ```powershell
@@ -54,6 +56,7 @@ Without `-Public`, the build may include personal artwork files (`launcher_bg.mp
 ```powershell
 .venv\Scripts\python tests\ui_test_launcher.py   # 15 checks
 .venv\Scripts\python tests\ui_test_setup.py      # 17 checks
+.venv\Scripts\python tests\ui_test_sound.py      # 5 checks
 ```
 
 ## Terms & license
