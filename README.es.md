@@ -13,6 +13,7 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 - **Catálogo de animaciones de Typh**: los títulos y las miniaturas vienen directamente de YouTube.
 - **Solo el canal de Typh**: puedes añadir videos nuevos por enlace, pero solo del canal de Typh. La aplicación comprueba el ID del canal.
 - **Descarga en máxima calidad**: hasta 4K a 60 fps con sonido, con [yt-dlp](https://github.com/yt-dlp/yt-dlp). La barra de progreso nunca retrocede.
+- **Sin créditos largos**: los créditos del final del video se recortan automáticamente tras la descarga, sin pérdida de calidad.
 - **Fondo animado**: un clic pone el video en el escritorio en bucle, con [Lively Wallpaper](https://github.com/rocksdanister/lively) y decodificación por hardware.
 - **Pantalla de bloqueo**: eliges un fotograma con un deslizador y se aplica en resolución completa, sin permisos de administrador.
 - **Sonido sí/no** y volumen del fondo. Por defecto solo suena en el escritorio vacío; activa **«Sonido en todas partes»** en Ajustes para oírlo en cualquier ventana o pestaña.

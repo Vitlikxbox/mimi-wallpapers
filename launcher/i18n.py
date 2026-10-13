@@ -2,7 +2,7 @@
 
 LANGS = {'ru': 'Русский', 'en': 'English', 'es': 'Español'}
 COMPANY = 'MimiFanStudio'
-VERSION = '1.3'
+VERSION = '1.4'
 TYPH_CHANNEL_ID = 'UCdARcqAEmGmU9ppAx8KHiVQ'      # канал Typh на YouTube (@crispytyph)
 TYPH_HANDLE = '@crispytyph'
 

@@ -13,6 +13,7 @@ A free, non-commercial fan project by **MimiFanStudio**.
 - **Catalog of Typh's animations**: titles and thumbnails come straight from YouTube.
 - **Only Typh's channel**: you can add new videos by link, but only from Typh's channel. The app checks the YouTube channel ID.
 - **Best quality download**: up to 4K 60 fps with sound, via [yt-dlp](https://github.com/yt-dlp/yt-dlp). The progress bar never goes backwards.
+- **No long end credits**: credits at the end of a video are cut automatically after download (lossless).
 - **Live wallpaper**: one click sets the video on your desktop in a loop, via [Lively Wallpaper](https://github.com/rocksdanister/lively), with hardware decoding.
 - **Lock screen**: pick any frame with a slider; it is set in full resolution with no admin rights.
 - **Sound on/off** and wallpaper volume. By default sound plays only on the empty desktop; turn on **Sound everywhere** in Settings to hear it in any window or browser tab.

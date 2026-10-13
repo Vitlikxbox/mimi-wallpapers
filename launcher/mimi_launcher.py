@@ -43,6 +43,18 @@ def preview_path(vid):
     return os.path.join(VIDEO_DIR, f'{vid}_preview.mp4')
 
 
+def trim_credits(path, item):
+    """Отрезает длинные титры в конце ролика: в каталоге у ролика может быть поле end (секунда начала титров).
+    Без перекодирования (-c copy): качество и звук не меняются."""
+    end = (item or {}).get('end')
+    if not (end and path and os.path.exists(path)):
+        return
+    tmp = path + '.trim.mkv'
+    run([tool('ffmpeg'), '-y', '-v', 'error', '-i', path, '-t', str(end), '-map', '0', '-c', 'copy', tmp], timeout=300)
+    if os.path.exists(tmp) and os.path.getsize(tmp) > 0:
+        os.replace(tmp, path)
+
+
 def preview_args(src, dst):
     return ['-y', '-v', 'error', '-i', src, '-an', '-vf', 'scale=-2:720', '-c:v', 'libx264', '-preset', 'veryfast',
             '-crf', '26', dst]
@@ -630,6 +642,7 @@ class Launcher(AnimatedBackground):
             self._select(vid)
             return
         self._set_progress('merge', 1)
+        trim_credits(p, self._item(vid))
         self.msg.setText(self.t('dl_preview'))
         self.proc = QProcess(self)
         self.proc.finished.connect(lambda c, s: self._preview_done(vid))
@@ -737,6 +750,7 @@ def cli_download(vid):
     subprocess.run([tool('yt-dlp')] + [a for a in dl_args(vid) if a != '--newline'], creationflags=NO_WINDOW)
     p = video_path(vid)
     if p:
+        trim_credits(p, next((i for i in catalog(load_config()) if i['id'] == vid), None))
         run([tool('ffmpeg')] + preview_args(p, preview_path(vid)), timeout=600)
     return p
 
