@@ -1,6 +1,7 @@
 # Сборка Mimi Wallpapers: лаунчер (папка) → payload.zip → установщик одним exe.
-#   .\build.ps1          — личная сборка (с оформлением из анимаций Typh, если файлы есть рядом; НЕ для публикации)
-#   .\build.ps1 -Public  — публичная сборка: только своя графика из assets/ (для GitHub Releases)
+#   .\build.ps1          — сборка MimiWallpapers_Setup.exe
+#   .\build.ps1 -Public  — то же под именем MimiWallpapers_Setup_public.exe (для GitHub Releases)
+# Оформление с Mimi (launcher_bg.mp4, setup_bg.webp, mimi.ico, mimi.png) и первый ролик используются с разрешения Typh.
 param([switch]$Public)
 $ErrorActionPreference = 'Stop'
 $R  = $PSScriptRoot
@@ -9,7 +10,7 @@ New-Item -ItemType Directory -Force "$R\.tmp" | Out-Null
 $env:TMP = "$R\.tmp"; $env:TEMP = $env:TMP
 # своя графика (иконка, анимированный фон) создаётся здесь: картинок в репозитории нет
 if (-not (Test-Path "$R\assets\bg_public.webp")) { & "$R\.venv\Scripts\python.exe" "$R\tools\make_public_assets.py" }
-$private = @('launcher_bg.mp4', 'setup_bg.webp', 'mimi.ico', 'mimi.png') | Where-Object { -not $Public -and (Test-Path "$R\$_") }
+$private = @('launcher_bg.mp4', 'setup_bg.webp', 'mimi.ico', 'mimi.png') | Where-Object { Test-Path "$R\$_" }
 $icon = if ($private -contains 'mimi.ico') { "$R\mimi.ico" } else { "$R\assets\icon.ico" }
 $name = if ($Public) { 'MimiWallpapers_Setup_public' } else { 'MimiWallpapers_Setup' }
 $common = @('--noconfirm', '--windowed', '--icon', $icon, '--workpath', "$R\build\work", '--specpath', "$R\build",
@@ -33,10 +34,10 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 # 3. установщик (один exe)
 $data = @('--add-data', "$zip;.", '--add-data', "$R\assets\bg_public.webp;.", '--add-data', "$R\assets\icon.ico;.", '--add-data', "$R\assets\icon.png;.")
 foreach ($f in 'setup_bg.webp', 'mimi.ico', 'mimi.png') { if ($private -contains $f) { $data += @('--add-data', "$R\$f;.") } }
-# личная сборка: первый ролик вшивается в установщик (сразу на обои, без скачивания и VPN). В публичную — нельзя.
+# первый ролик вшивается в установщик: сразу на обои, без скачивания и VPN (с разрешения Typh)
 $first = (Get-Content "$R\catalog.json" -Raw | ConvertFrom-Json)[0].id
 $vdir = "$env:LOCALAPPDATA\MimiWallpapers\videos"
-if (-not $Public -and (Test-Path "$vdir\$first.mkv")) {
+if (Test-Path "$vdir\$first.mkv") {
     $data += @('--add-data', "$vdir\$first.mkv;.")
     if (Test-Path "$vdir\${first}_preview.mp4") { $data += @('--add-data', "$vdir\${first}_preview.mp4;.") }
 }

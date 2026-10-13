@@ -5,9 +5,14 @@
 Fondos de escritorio animados con **Mimi**, el personaje de las animaciones de **[Typh](https://www.youtube.com/@crispytyph)**.
 Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 
-> **Sin relación con Typh.** Mimi y todas las animaciones © Typh. Este repositorio **no** contiene fotogramas, videos ni dibujos de Typh.
+> **Las imágenes de Mimi y el video incluido se usan con permiso de Typh.** Mimi y todas las animaciones © Typh.
 > La aplicación descarga videos del canal oficial de YouTube de Typh en tu equipo **solo para usarlos como fondo personal**.
 > Apoya al creador: mira sus videos y dales “me gusta” en YouTube.
+
+## Capturas
+| Lanzador | Fotograma para la pantalla de bloqueo | Instalador |
+|---|---|---|
+| ![Lanzador](docs/launcher.jpg) | ![Fotograma](docs/frame_picker.jpg) | ![Instalador](docs/setup.jpg) |
 
 ## Funciones
 - **Catálogo de animaciones de Typh**: los títulos y las miniaturas vienen directamente de YouTube.
@@ -19,7 +24,7 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 - **Sonido sí/no** y volumen del fondo. Por defecto solo suena en el escritorio vacío; activa **«Sonido en todas partes»** en Ajustes para oírlo en cualquier ventana o pestaña.
 - **Iniciar con Windows**: tu último fondo vuelve tras reiniciar.
 - **Idiomas**: Español, English, Русский.
-- **Instalador con Mimi**: desde el primer segundo muestra una presentación con las miniaturas de los videos de Typh (cargadas desde YouTube), con condiciones de uso. Instala por usuario (sin permisos de administrador) y obtiene las herramientas que falten con `winget`. Se desinstala desde *Aplicaciones*.
+- **Instalador con Mimi**: un fondo animado con Mimi desde el primer segundo, con condiciones de uso. El primer fondo (KISS ME) ya viene dentro del instalador: funciona al instante, incluso sin VPN. Instala por usuario (sin permisos de administrador) y obtiene las herramientas que falten con `winget`. Se desinstala desde *Aplicaciones*.
 
 ## Instalación
 1. Descarga `MimiWallpapers_Setup_public.exe` desde [Releases](../../releases).
@@ -39,7 +44,7 @@ powershell -ExecutionPolicy Bypass -File build.ps1 -Public
 ```
 El instalador queda en `installer\MimiWallpapers_Setup_public.exe`.
 
-Sin `-Public`, la compilación puede incluir archivos de diseño personales (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) si los creaste tú a partir de tus descargas. Git los ignora y **no se deben publicar**.
+El diseño con Mimi (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) está en el repositorio y se usa con permiso de Typh. El primer video del catálogo se incluye en el instalador si ya está descargado en `%LOCALAPPDATA%\MimiWallpapers\videos`.
 
 ## Estructura
 | Ruta | Qué es |
@@ -49,7 +54,9 @@ Sin `-Public`, la compilación puede incluir archivos de diseño personales (`la
 | `launcher/common.py` | rutas comunes, estilo, fondo animado |
 | `launcher/i18n.py` | traducciones, condiciones de uso, ID del canal de Typh |
 | `catalog.json` | catálogo de videos (ID de YouTube y títulos) |
-| `tools/make_public_assets.py` | genera el icono y el fondo animado al compilar |
+| `launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png` | diseño con Mimi (con permiso de Typh) |
+| `docs/` | capturas |
+| `tools/make_public_assets.py` | genera gráficos de reserva al compilar |
 | `tests/` | pruebas de interfaz (pywinauto): lanzador, instalación, desinstalación |
 | `build.ps1` | script de compilación |
 
@@ -63,5 +70,5 @@ Sin `-Public`, la compilación puede incluir archivos de diseño personales (`la
 ## Condiciones y licencia
 - [Condiciones de uso](TERMS.md#español) (también se muestran en el instalador y en la aplicación).
 - Código fuente: [MIT](LICENSE) © 2026 MimiFanStudio.
-- Mimi y las animaciones: © Typh. No se incluyen ni se licencian aquí.
+- Mimi y las animaciones: © Typh, usados con permiso. La licencia MIT no se aplica a ellos.
 - Software de terceros: Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL), Qt for Python / PySide6 (LGPL-3.0).

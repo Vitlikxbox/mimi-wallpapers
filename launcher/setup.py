@@ -52,6 +52,26 @@ DEPS = [  # (название, id в winget, проверка)
 ]
 
 
+def close_running(target):
+    """Закрывает запущенный лаунчер и его фоновый ffmpeg: иначе файлы программы заняты (Permission denied)."""
+    subprocess.run(['taskkill', '/f', '/im', 'MimiWallpapers.exe'], capture_output=True, creationflags=NO_WINDOW)
+    subprocess.run(['powershell', '-NoProfile', '-Command',
+                    "Get-CimInstance Win32_Process -Filter \"Name='ffmpeg.exe'\" | Where-Object { $_.CommandLine -like '*"
+                    + target.replace("'", "''") + "*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"],
+                   capture_output=True, creationflags=NO_WINDOW)
+
+
+def extract_retry(z, info, target, tries=10):
+    """Файл может освобождаться не сразу после закрытия процесса — пробуем ещё несколько раз."""
+    for n in range(tries):
+        try:
+            return z.extract(info, target)
+        except PermissionError:
+            if n == tries - 1:
+                raise
+            time.sleep(0.5)
+
+
 class Worker(QThread):
     progress = Signal(float, str)
     done = Signal(bool, str)
@@ -72,12 +92,13 @@ class Worker(QThread):
         # 1. файлы (0–70 %)
         self.progress.emit(0, t('st_files'))
         os.makedirs(self.target, exist_ok=True)
+        close_running(self.target)
         with zipfile.ZipFile(os.path.join(RES_DIR, 'payload.zip')) as z:
             names = z.infolist()
             total = sum(i.file_size for i in names) or 1
             doneb = 0
             for i in names:
-                z.extract(i, self.target)
+                extract_retry(z, i, self.target)
                 doneb += i.file_size
                 self.progress.emit(70 * doneb / total, t('st_files'))
         exe = os.path.join(self.target, 'MimiWallpapers.exe')

@@ -9,12 +9,5 @@ installer/*.exe
 tests/shots/
 videos/
 
-# личное оформление из анимаций Typh — НЕ публикуется (права у автора)
-launcher_bg.mp4
-setup_bg.webp
-mimi.ico
-mimi.png
-
-# графика создаётся при сборке (tools/make_public_assets.py)
+# запасная графика создаётся при сборке (tools/make_public_assets.py)
 assets/
-docs/

@@ -5,9 +5,14 @@
 Live desktop wallpapers with **Mimi**, the character from the animations by **[Typh](https://www.youtube.com/@crispytyph)**.
 A free, non-commercial fan project by **MimiFanStudio**.
 
-> **Not affiliated with Typh.** Mimi and all animations © Typh. This repository contains **no** frames, videos or art by Typh.
+> **Mimi images and the bundled video are used with Typh's permission.** Mimi and all animations © Typh.
 > The app downloads videos from Typh's official YouTube channel to your computer **for personal wallpaper use only**.
 > Please support the creator: watch and like the videos on YouTube.
+
+## Screenshots
+| Launcher | Lock screen frame | Setup |
+|---|---|---|
+| ![Launcher](docs/launcher.jpg) | ![Frame picker](docs/frame_picker.jpg) | ![Setup](docs/setup.jpg) |
 
 ## Features
 - **Catalog of Typh's animations**: titles and thumbnails come straight from YouTube.
@@ -19,7 +24,7 @@ A free, non-commercial fan project by **MimiFanStudio**.
 - **Sound on/off** and wallpaper volume. By default sound plays only on the empty desktop; turn on **Sound everywhere** in Settings to hear it in any window or browser tab.
 - **Start with Windows**: your last wallpaper comes back after a reboot.
 - **Languages**: English, Русский, Español.
-- **Setup wizard with Mimi**: a slideshow of Typh's video thumbnails (loaded from YouTube) plays from the first second, with terms of use. It installs per user (no admin rights) and fetches missing tools via `winget`. The app can be uninstalled from *Apps & features*.
+- **Setup wizard with Mimi**: an animated Mimi background from the first second, with terms of use. The first wallpaper (KISS ME) is already inside the installer, so it works right away, even without a VPN. It installs per user (no admin rights) and fetches missing tools via `winget`. The app can be uninstalled from *Apps & features*.
 
 ## Install
 1. Download `MimiWallpapers_Setup_public.exe` from [Releases](../../releases).
@@ -39,7 +44,7 @@ powershell -ExecutionPolicy Bypass -File build.ps1 -Public
 ```
 The result is `installer\MimiWallpapers_Setup_public.exe`.
 
-Without `-Public`, the build may include personal artwork files (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) if you made them yourself from your own downloads. They are ignored by git and **must not be published**.
+The Mimi artwork (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) is in the repository and is used with Typh's permission. The first catalog video is bundled into the installer if it is already downloaded to `%LOCALAPPDATA%\MimiWallpapers\videos`.
 
 ## Project structure
 | Path | What it is |
@@ -49,7 +54,9 @@ Without `-Public`, the build may include personal artwork files (`launcher_bg.mp
 | `launcher/common.py` | shared paths, style, animated background |
 | `launcher/i18n.py` | translations, terms of use, Typh channel ID |
 | `catalog.json` | video catalog (YouTube IDs and titles) |
-| `tools/make_public_assets.py` | generates the icon and animated background at build time |
+| `launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png` | Mimi artwork (with Typh's permission) |
+| `docs/` | screenshots |
+| `tools/make_public_assets.py` | generates fallback graphics at build time |
 | `tests/` | UI tests (pywinauto): launcher, setup, uninstall |
 | `build.ps1` | build script |
 
@@ -63,5 +70,5 @@ Without `-Public`, the build may include personal artwork files (`launcher_bg.mp
 ## Terms & license
 - [Terms of use](TERMS.md#english) (also shown in the setup wizard and inside the app).
 - Source code: [MIT](LICENSE) © 2026 MimiFanStudio.
-- Mimi and the animations: © Typh. Not included and not licensed here.
+- Mimi and the animations: © Typh, used with permission. The MIT license does not apply to them.
 - Third-party software: Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL), Qt for Python / PySide6 (LGPL-3.0).

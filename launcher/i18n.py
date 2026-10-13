@@ -2,7 +2,7 @@
 
 LANGS = {'ru': 'Русский', 'en': 'English', 'es': 'Español'}
 COMPANY = 'MimiFanStudio'
-VERSION = '1.4'
+VERSION = '1.5'
 TYPH_CHANNEL_ID = 'UCdARcqAEmGmU9ppAx8KHiVQ'      # канал Typh на YouTube (@crispytyph)
 TYPH_HANDLE = '@crispytyph'
 
@@ -134,7 +134,7 @@ TERMS = {
     'ru': f"""<h3>Условия использования Mimi Wallpapers</h3>
 <p><b>{COMPANY}</b> · версия {VERSION}</p>
 <p><b>1. Что это.</b> Mimi Wallpapers — бесплатный некоммерческий фанатский проект {COMPANY}. Программа помогает поставить на рабочий стол и экран блокировки обои из анимаций с персонажем Mimi.</p>
-<p><b>2. Авторские права на анимации.</b> Персонаж Mimi и все анимации принадлежат их автору, аниматору <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} не связана с Typh, не получала от него одобрения и не претендует на какие-либо права на его работы. Каталог ограничен роликами с официального канала Typh.</p>
+<p><b>2. Авторские права на анимации.</b> Персонаж Mimi и все анимации принадлежат их автору, аниматору <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} — независимый фан-проект. Изображения Mimi и первый ролик в установщике используются с разрешения Typh. {COMPANY} не претендует на какие-либо права на работы Typh. Каталог ограничен роликами с официального канала Typh.</p>
 <p><b>3. Только личное использование.</b> Видео скачиваются на ваш компьютер исключительно как обои для личного некоммерческого использования. Запрещено распространять, выкладывать, продавать скачанные видео или использовать их в коммерческих целях. Пожалуйста, поддерживайте автора: смотрите и лайкайте его ролики на YouTube.</p>
 <p><b>4. Ответственность пользователя.</b> Вы самостоятельно отвечаете за соблюдение законов вашей страны и правил YouTube при скачивании видео. Если правообладатель попросит прекратить использование его работ, проект будет изменён или закрыт.</p>
 <p><b>5. Сторонние программы.</b> Программа использует Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) и Qt / PySide6 (LGPL-3.0). Права на них принадлежат их авторам.</p>
@@ -145,7 +145,7 @@ TERMS = {
     'en': f"""<h3>Mimi Wallpapers Terms of Use</h3>
 <p><b>{COMPANY}</b> · version {VERSION}</p>
 <p><b>1. What it is.</b> Mimi Wallpapers is a free, non-commercial fan project by {COMPANY}. It helps you set wallpapers made from animations featuring the character Mimi on your desktop and lock screen.</p>
-<p><b>2. Copyright of the animations.</b> The character Mimi and all animations belong to their creator, the animator <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} is not affiliated with or endorsed by Typh and claims no rights to Typh’s works. The catalog is limited to videos from Typh’s official channel.</p>
+<p><b>2. Copyright of the animations.</b> The character Mimi and all animations belong to their creator, the animator <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} is an independent fan project. Mimi images and the video bundled with the installer are used with Typh’s permission. {COMPANY} claims no rights to Typh’s works. The catalog is limited to videos from Typh’s official channel.</p>
 <p><b>3. Personal use only.</b> Videos are downloaded to your computer solely as wallpapers for personal, non-commercial use. You may not redistribute, upload, sell or commercially use downloaded videos. Please support the creator by watching and liking the videos on YouTube.</p>
 <p><b>4. Your responsibility.</b> You are responsible for complying with the laws of your country and YouTube’s terms when downloading videos. If the rights holder asks us to stop using their works, the project will be changed or discontinued.</p>
 <p><b>5. Third-party software.</b> The app uses Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) and Qt / PySide6 (LGPL-3.0). These belong to their respective authors.</p>
@@ -156,7 +156,7 @@ TERMS = {
     'es': f"""<h3>Condiciones de uso de Mimi Wallpapers</h3>
 <p><b>{COMPANY}</b> · versión {VERSION}</p>
 <p><b>1. Qué es.</b> Mimi Wallpapers es un proyecto de fans gratuito y sin ánimo de lucro de {COMPANY}. Te ayuda a poner en el escritorio y en la pantalla de bloqueo fondos hechos con animaciones del personaje Mimi.</p>
-<p><b>2. Derechos de autor de las animaciones.</b> El personaje Mimi y todas las animaciones pertenecen a su creador, el animador <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} no está afiliada ni respaldada por Typh y no reclama ningún derecho sobre sus obras. El catálogo se limita a videos del canal oficial de Typh.</p>
+<p><b>2. Derechos de autor de las animaciones.</b> El personaje Mimi y todas las animaciones pertenecen a su creador, el animador <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} es un proyecto de fans independiente. Las imágenes de Mimi y el video incluido en el instalador se usan con permiso de Typh. {COMPANY} no reclama ningún derecho sobre las obras de Typh. El catálogo se limita a videos del canal oficial de Typh.</p>
 <p><b>3. Solo uso personal.</b> Los videos se descargan en tu equipo únicamente como fondos para uso personal y no comercial. No está permitido redistribuir, subir, vender ni usar comercialmente los videos descargados. Apoya al creador viendo y dando “me gusta” a sus videos en YouTube.</p>
 <p><b>4. Tu responsabilidad.</b> Eres responsable de cumplir las leyes de tu país y las condiciones de YouTube al descargar videos. Si el titular de los derechos pide dejar de usar sus obras, el proyecto se modificará o se cerrará.</p>
 <p><b>5. Software de terceros.</b> La aplicación usa Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) y Qt / PySide6 (LGPL-3.0). Pertenecen a sus respectivos autores.</p>

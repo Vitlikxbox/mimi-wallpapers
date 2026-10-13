@@ -175,13 +175,32 @@ def apply_current():
         lively_volume(cfg.get('volume', 60) if cfg.get('sound') else 0)
 
 
+BTN = {'yes': {'ru': 'Да', 'en': 'Yes', 'es': 'Sí'}, 'no': {'ru': 'Нет', 'en': 'No', 'es': 'No'}}
+
+
+def top_box(text, lang, ask=True):
+    """Окно удаления поверх всех окон (иначе оно может открыться за браузером) и с кнопками на языке программы."""
+    box = QMessageBox(QMessageBox.Question if ask else QMessageBox.Information, APP_NAME, text)
+    box.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+    if ask:
+        yes = box.addButton(BTN['yes'].get(lang, 'Yes'), QMessageBox.YesRole)
+        box.setDefaultButton(box.addButton(BTN['no'].get(lang, 'No'), QMessageBox.NoRole))
+    else:
+        yes = box.addButton('OK', QMessageBox.AcceptRole)
+    box.show()
+    box.raise_()
+    box.activateWindow()
+    box.exec()
+    return box.clickedButton() is yes
+
+
 def uninstall():
     """Удаление программы (вызывается из «Программы и компоненты» или из настроек)."""
     app = QApplication.instance() or QApplication(sys.argv)
     lang = load_config().get('lang', 'ru')
-    if QMessageBox.question(None, APP_NAME, tr('uninstall_q', lang)) != QMessageBox.Yes:
+    if not top_box(tr('uninstall_q', lang), lang):
         return
-    wipe = QMessageBox.question(None, APP_NAME, tr('uninstall_data_q', lang)) == QMessageBox.Yes
+    wipe = top_box(tr('uninstall_data_q', lang), lang)
     desktop = os.path.join(os.environ['USERPROFILE'], 'Desktop')
     menu = os.path.join(os.environ['APPDATA'], r'Microsoft\Windows\Start Menu\Programs')
     for lnk in (os.path.join(startup_dir(), 'Mimi Wallpapers.lnk'), os.path.join(desktop, 'Mimi Wallpapers.lnk'),
@@ -192,7 +211,9 @@ def uninstall():
         winreg.DeleteKey(winreg.HKEY_CURRENT_USER, UNINSTALL_KEY)
     except OSError:
         pass
-    QMessageBox.information(None, APP_NAME, tr('uninstall_done', lang))
+    top_box(tr('uninstall_done', lang), lang, ask=False)
+    # другие окна лаунчера держат файлы программы — закрываем их (кроме этого процесса)
+    run(['taskkill', '/f', '/im', 'MimiWallpapers.exe', '/fi', f'PID ne {os.getpid()}'])
     # фоновый ffmpeg лаунчера мог остаться (если окно закрыли аварийно) — он держит файлы программы
     run(['powershell', '-NoProfile', '-Command',
          "Get-CimInstance Win32_Process -Filter \"Name='ffmpeg.exe'\" | Where-Object { $_.CommandLine -like '*"

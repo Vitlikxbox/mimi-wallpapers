@@ -7,7 +7,7 @@
 
 **1. What it is.** Mimi Wallpapers is a free, non-commercial fan project by MimiFanStudio. It helps you set wallpapers made from animations featuring the character Mimi on your desktop and lock screen.
 
-**2. Copyright of the animations.** The character Mimi and all animations belong to their creator, the animator **Typh** (YouTube: @crispytyph). MimiFanStudio is not affiliated with or endorsed by Typh and claims no rights to Typh’s works. The catalog is limited to videos from Typh’s official channel.
+**2. Copyright of the animations.** The character Mimi and all animations belong to their creator, the animator **Typh** (YouTube: @crispytyph). MimiFanStudio is an independent fan project. Mimi images and the video bundled with the installer are used with Typh’s permission. MimiFanStudio claims no rights to Typh’s works. The catalog is limited to videos from Typh’s official channel.
 
 **3. Personal use only.** Videos are downloaded to your computer solely as wallpapers for personal, non-commercial use. You may not redistribute, upload, sell or commercially use downloaded videos. Please support the creator by watching and liking the videos on YouTube.
 
@@ -30,7 +30,7 @@ By installing or using the app you agree to these terms.
 
 **1. Что это.** Mimi Wallpapers — бесплатный некоммерческий фанатский проект MimiFanStudio. Программа помогает поставить на рабочий стол и экран блокировки обои из анимаций с персонажем Mimi.
 
-**2. Авторские права на анимации.** Персонаж Mimi и все анимации принадлежат их автору, аниматору **Typh** (YouTube: @crispytyph). MimiFanStudio не связана с Typh, не получала от него одобрения и не претендует на какие-либо права на его работы. Каталог ограничен роликами с официального канала Typh.
+**2. Авторские права на анимации.** Персонаж Mimi и все анимации принадлежат их автору, аниматору **Typh** (YouTube: @crispytyph). MimiFanStudio — независимый фан-проект. Изображения Mimi и первый ролик в установщике используются с разрешения Typh. MimiFanStudio не претендует на какие-либо права на работы Typh. Каталог ограничен роликами с официального канала Typh.
 
 **3. Только личное использование.** Видео скачиваются на ваш компьютер исключительно как обои для личного некоммерческого использования. Запрещено распространять, выкладывать, продавать скачанные видео или использовать их в коммерческих целях. Пожалуйста, поддерживайте автора: смотрите и лайкайте его ролики на YouTube.
 
@@ -53,7 +53,7 @@ By installing or using the app you agree to these terms.
 
 **1. Qué es.** Mimi Wallpapers es un proyecto de fans gratuito y sin ánimo de lucro de MimiFanStudio. Te ayuda a poner en el escritorio y en la pantalla de bloqueo fondos hechos con animaciones del personaje Mimi.
 
-**2. Derechos de autor de las animaciones.** El personaje Mimi y todas las animaciones pertenecen a su creador, el animador **Typh** (YouTube: @crispytyph). MimiFanStudio no está afiliada ni respaldada por Typh y no reclama ningún derecho sobre sus obras. El catálogo se limita a videos del canal oficial de Typh.
+**2. Derechos de autor de las animaciones.** El personaje Mimi y todas las animaciones pertenecen a su creador, el animador **Typh** (YouTube: @crispytyph). MimiFanStudio es un proyecto de fans independiente. Las imágenes de Mimi y el video incluido en el instalador se usan con permiso de Typh. MimiFanStudio no reclama ningún derecho sobre las obras de Typh. El catálogo se limita a videos del canal oficial de Typh.
 
 **3. Solo uso personal.** Los videos se descargan en tu equipo únicamente como fondos para uso personal y no comercial. No está permitido redistribuir, subir, vender ni usar comercialmente los videos descargados. Apoya al creador viendo y dando “me gusta” a sus videos en YouTube.
 

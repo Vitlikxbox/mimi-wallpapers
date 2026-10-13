@@ -50,7 +50,7 @@ def msgbox_click(button_re, timeout=15):
                 for b in w.descendants(control_type='Button'):
                     import re
                     if re.match(button_re, b.window_text()) and w.window_text() == 'Mimi Wallpapers':
-                        b.click_input()
+                        b.invoke()          # без мыши: не промахнёмся, даже если окно чем-то закрыто
                         time.sleep(1)
                         return True
             except Exception:
@@ -72,7 +72,7 @@ def open_setup():
 # ---------- 1. удаление (видео оставляем)
 subprocess.run(['taskkill', '/f', '/im', 'MimiWallpapers.exe'], capture_output=True)
 subprocess.Popen([EXE, '--uninstall'])
-check('удаление: вопрос «Удалить?» → Да', msgbox_click(r'&?(Yes|Да)'))
+check('удаление: вопрос «Удалить?» → Да', msgbox_click(r'&?(Yes|Да|Sí)'))
 check('удаление: «Удалить и видео?» → Нет', msgbox_click(r'&?(No|Нет)'))
 check('удаление: сообщение «удалён» → OK', msgbox_click(r'&?(OK|ОК)'))
 time.sleep(5)
