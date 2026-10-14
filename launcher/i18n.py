@@ -2,7 +2,7 @@
 
 LANGS = {'ru': 'Русский', 'en': 'English', 'es': 'Español'}
 COMPANY = 'MimiFanStudio'
-VERSION = '1.5'
+VERSION = '2.0'
 TYPH_CHANNEL_ID = 'UCdARcqAEmGmU9ppAx8KHiVQ'      # канал Typh на YouTube (@crispytyph)
 TYPH_HANDLE = '@crispytyph'
 
@@ -33,9 +33,9 @@ T = {
              'en': 'Videos are downloaded for your own wallpaper only. Animations © Typh.',
              'es': 'Los videos se descargan solo para tu fondo. Animaciones © Typh.'},
     'legal_link': {'ru': 'Авторские права и условия', 'en': 'Copyright & terms', 'es': 'Derechos y condiciones'},
-    'no_lively': {'ru': 'Не найдена Lively Wallpaper — без неё обои не применятся. Переустановите Mimi Wallpapers.',
-                  'en': 'Lively Wallpaper was not found — wallpapers cannot be applied. Please reinstall Mimi Wallpapers.',
-                  'es': 'No se encontró Lively Wallpaper: no se pueden aplicar fondos. Reinstala Mimi Wallpapers.'},
+    'no_mpv': {'ru': 'Не найден видеоплеер mpv — без него движок обоев не работает. Переустановите Mimi Wallpapers.',
+               'en': 'The mpv video player was not found — the wallpaper engine needs it. Please reinstall Mimi Wallpapers.',
+               'es': 'No se encontró el reproductor mpv: el motor de fondos lo necesita. Reinstala Mimi Wallpapers.'},
     'bad_link': {'ru': 'Не похоже на ссылку YouTube.', 'en': 'This does not look like a YouTube link.',
                  'es': 'No parece un enlace de YouTube.'},
     'already': {'ru': 'Этот ролик уже есть в каталоге.', 'en': 'This video is already in the catalog.',
@@ -76,8 +76,7 @@ T = {
     'audio_everywhere': {'ru': 'Звук везде: и в окнах, и во вкладках (по умолчанию — только на рабочем столе)',
                          'en': 'Sound everywhere: in windows and tabs too (default: desktop only)',
                          'es': 'Sonido en todas partes: también en ventanas y pestañas (por defecto: solo en el escritorio)'},
-    'sound_setup': {'ru': 'Настраиваю звук в Lively…', 'en': 'Setting up sound in Lively…',
-                    'es': 'Configurando el sonido en Lively…'},
+    'sound_setup': {'ru': 'Настраиваю звук…', 'en': 'Setting up sound…', 'es': 'Configurando el sonido…'},
     'language': {'ru': 'Язык', 'en': 'Language', 'es': 'Idioma'},
     'volume': {'ru': 'Громкость обоев', 'en': 'Wallpaper volume', 'es': 'Volumen del fondo'},
     'restart_lang': {'ru': 'Лаунчер перезапустится на выбранном языке.', 'en': 'The launcher will restart in the selected language.',
@@ -108,9 +107,9 @@ T = {
     'opt_startmenu': {'ru': 'Ярлык в меню «Пуск»', 'en': 'Start menu shortcut', 'es': 'Acceso en el menú Inicio'},
     'opt_autostart': {'ru': 'Запускать обои вместе с Windows', 'en': 'Start wallpapers with Windows',
                       'es': 'Iniciar los fondos con Windows'},
-    'opt_deps': {'ru': 'Установить нужные программы (Lively Wallpaper, yt-dlp, ffmpeg), если их нет',
-                 'en': 'Install required programs (Lively Wallpaper, yt-dlp, ffmpeg) if missing',
-                 'es': 'Instalar los programas necesarios (Lively Wallpaper, yt-dlp, ffmpeg) si faltan'},
+    'opt_deps': {'ru': 'Установить нужные программы (mpv, yt-dlp, ffmpeg), если их нет',
+                 'en': 'Install required programs (mpv, yt-dlp, ffmpeg) if missing',
+                 'es': 'Instalar los programas necesarios (mpv, yt-dlp, ffmpeg) si faltan'},
     'installing': {'ru': 'Устанавливаю…', 'en': 'Installing…', 'es': 'Instalando…'},
     'st_files': {'ru': 'Копирую файлы…', 'en': 'Copying files…', 'es': 'Copiando archivos…'},
     'st_shortcuts': {'ru': 'Создаю ярлыки…', 'en': 'Creating shortcuts…', 'es': 'Creando accesos directos…'},
@@ -137,7 +136,7 @@ TERMS = {
 <p><b>2. Авторские права на анимации.</b> Персонаж Mimi и все анимации принадлежат их автору, аниматору <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} — независимый фан-проект. Изображения Mimi и первый ролик в установщике используются с разрешения Typh. {COMPANY} не претендует на какие-либо права на работы Typh. Каталог ограничен роликами с официального канала Typh.</p>
 <p><b>3. Только личное использование.</b> Видео скачиваются на ваш компьютер исключительно как обои для личного некоммерческого использования. Запрещено распространять, выкладывать, продавать скачанные видео или использовать их в коммерческих целях. Пожалуйста, поддерживайте автора: смотрите и лайкайте его ролики на YouTube.</p>
 <p><b>4. Ответственность пользователя.</b> Вы самостоятельно отвечаете за соблюдение законов вашей страны и правил YouTube при скачивании видео. Если правообладатель попросит прекратить использование его работ, проект будет изменён или закрыт.</p>
-<p><b>5. Сторонние программы.</b> Программа использует Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) и Qt / PySide6 (LGPL-3.0). Права на них принадлежат их авторам.</p>
+<p><b>5. Сторонние программы.</b> Программа использует свой движок обоев на основе mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) и Qt / PySide6 (LGPL-3.0). Права на них принадлежат их авторам.</p>
 <p><b>6. Без гарантий.</b> Программа предоставляется «как есть», без каких-либо гарантий. {COMPANY} не отвечает за возможные убытки, потерю данных или неполадки, связанные с её использованием.</p>
 <p><b>7. Данные.</b> Программа не собирает и не отправляет личные данные. Обращения в интернет: YouTube (превью и видео) и каталог программ winget при установке.</p>
 <p>Устанавливая или используя программу, вы соглашаетесь с этими условиями.</p>
@@ -148,7 +147,7 @@ TERMS = {
 <p><b>2. Copyright of the animations.</b> The character Mimi and all animations belong to their creator, the animator <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} is an independent fan project. Mimi images and the video bundled with the installer are used with Typh’s permission. {COMPANY} claims no rights to Typh’s works. The catalog is limited to videos from Typh’s official channel.</p>
 <p><b>3. Personal use only.</b> Videos are downloaded to your computer solely as wallpapers for personal, non-commercial use. You may not redistribute, upload, sell or commercially use downloaded videos. Please support the creator by watching and liking the videos on YouTube.</p>
 <p><b>4. Your responsibility.</b> You are responsible for complying with the laws of your country and YouTube’s terms when downloading videos. If the rights holder asks us to stop using their works, the project will be changed or discontinued.</p>
-<p><b>5. Third-party software.</b> The app uses Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) and Qt / PySide6 (LGPL-3.0). These belong to their respective authors.</p>
+<p><b>5. Third-party software.</b> The app uses its own wallpaper engine built on mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) and Qt / PySide6 (LGPL-3.0). These belong to their respective authors.</p>
 <p><b>6. No warranty.</b> The software is provided “as is”, without warranty of any kind. {COMPANY} is not liable for any damage, data loss or malfunction arising from its use.</p>
 <p><b>7. Data.</b> The app does not collect or send personal data. Network access: YouTube (thumbnails and videos) and the winget catalog during setup.</p>
 <p>By installing or using the app you agree to these terms.</p>
@@ -159,7 +158,7 @@ TERMS = {
 <p><b>2. Derechos de autor de las animaciones.</b> El personaje Mimi y todas las animaciones pertenecen a su creador, el animador <b>Typh</b> (YouTube: {TYPH_HANDLE}). {COMPANY} es un proyecto de fans independiente. Las imágenes de Mimi y el video incluido en el instalador se usan con permiso de Typh. {COMPANY} no reclama ningún derecho sobre las obras de Typh. El catálogo se limita a videos del canal oficial de Typh.</p>
 <p><b>3. Solo uso personal.</b> Los videos se descargan en tu equipo únicamente como fondos para uso personal y no comercial. No está permitido redistribuir, subir, vender ni usar comercialmente los videos descargados. Apoya al creador viendo y dando “me gusta” a sus videos en YouTube.</p>
 <p><b>4. Tu responsabilidad.</b> Eres responsable de cumplir las leyes de tu país y las condiciones de YouTube al descargar videos. Si el titular de los derechos pide dejar de usar sus obras, el proyecto se modificará o se cerrará.</p>
-<p><b>5. Software de terceros.</b> La aplicación usa Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) y Qt / PySide6 (LGPL-3.0). Pertenecen a sus respectivos autores.</p>
+<p><b>5. Software de terceros.</b> La aplicación usa su propio motor de fondos basado en mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) y Qt / PySide6 (LGPL-3.0). Pertenecen a sus respectivos autores.</p>
 <p><b>6. Sin garantía.</b> El software se ofrece “tal cual”, sin garantía de ningún tipo. {COMPANY} no se hace responsable de daños, pérdida de datos o fallos derivados de su uso.</p>
 <p><b>7. Datos.</b> La aplicación no recopila ni envía datos personales. Acceso a internet: YouTube (miniaturas y videos) y el catálogo winget durante la instalación.</p>
 <p>Al instalar o usar la aplicación aceptas estas condiciones.</p>

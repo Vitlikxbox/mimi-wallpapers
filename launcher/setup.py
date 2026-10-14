@@ -2,7 +2,7 @@
 
 Собирается PyInstaller'ом в один exe; внутри: payload.zip (собранный лаунчер), setup_bg.webp, mimi.ico.
 Ставит программу в папку пользователя (без прав администратора), создаёт ярлыки, регистрирует удаление,
-при необходимости ставит Lively Wallpaper, yt-dlp и ffmpeg из официального каталога winget.
+при необходимости ставит mpv, yt-dlp и ffmpeg из официального каталога winget.
 """
 import json
 import os
@@ -18,8 +18,8 @@ from PySide6.QtGui import QFont, QIcon, QPixmap
 from PySide6.QtWidgets import (QApplication, QCheckBox, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit,
                                QProgressBar, QPushButton, QStackedWidget, QTextBrowser, QVBoxLayout, QWidget)
 
-from common import (APP_NAME, CONFIG, DATA_DIR, LIVELY, NO_WINDOW, RES_DIR, STYLE, UNINSTALL_KEY, VIDEO_DIR,
-                    WINGET_LINKS, AnimatedBackground, asset, fetch_thumbs, load_config, load_json, save_config,
+from common import (APP_NAME, CONFIG, DATA_DIR, NO_WINDOW, RES_DIR, STYLE, UNINSTALL_KEY, VIDEO_DIR,
+                    WINGET_LINKS, AnimatedBackground, asset, fetch_thumbs, load_config, load_json, save_config, tool,
                     shortcut)
 from i18n import COMPANY, LANGS, TERMS, VERSION, tr
 
@@ -48,7 +48,7 @@ class ThumbLoader(QThread):
 DEPS = [  # (название, id в winget, проверка)
     ('yt-dlp', 'yt-dlp.yt-dlp', lambda: os.path.exists(os.path.join(WINGET_LINKS, 'yt-dlp.exe'))),
     ('ffmpeg', 'yt-dlp.FFmpeg', lambda: os.path.exists(os.path.join(WINGET_LINKS, 'ffmpeg.exe'))),
-    ('Lively Wallpaper', 'rocksdanister.LivelyWallpaper', lambda: os.path.exists(LIVELY)),
+    ('mpv', 'shinchiro.mpv', lambda: os.path.isabs(tool('mpv'))),        # плеер внутри движка обоев
 ]
 
 
@@ -137,7 +137,7 @@ class Worker(QThread):
         save_config(cfg)
         if self.opts['autostart']:
             startup = os.path.join(os.environ['APPDATA'], r'Microsoft\Windows\Start Menu\Programs\Startup')
-            shortcut(os.path.join(startup, 'Mimi Wallpapers.lnk'), exe, '--apply-current', workdir=self.target)
+            shortcut(os.path.join(startup, 'Mimi Wallpapers.lnk'), exe, '--engine', workdir=self.target)
         # 4. нужные программы через winget (78–100 %)
         if self.opts['deps']:
             step = 22 / len(DEPS)
@@ -156,13 +156,10 @@ class Worker(QThread):
                     self.progress.emit(base + step * min(0.9, 0.1 + tick * 0.01), t('st_dep', n=name))
                     self.msleep(500)
                 self.progress.emit(base + step, t('st_dep', n=name))
-        if bv and os.path.exists(LIVELY):                  # сразу ставим вшитый ролик на обои
+        if load_json(CONFIG, {}).get('current') and os.path.isabs(tool('mpv')):
+            # сразу запускаем движок: вшитый ролик (или прежние обои после обновления) появляется на рабочем столе
             self.progress.emit(99, t('st_video'))
-            if 'Lively.exe' not in subprocess.run(['tasklist', '/fi', 'imagename eq Lively.exe'], capture_output=True,
-                                                  text=True, creationflags=NO_WINDOW).stdout:
-                subprocess.Popen(['explorer.exe', LIVELY])
-                time.sleep(8)
-            subprocess.Popen([LIVELY, 'setwp', '--file', os.path.join(VIDEO_DIR, bv[0] + '.mkv')], creationflags=NO_WINDOW)
+            subprocess.Popen([exe, '--engine'], cwd=self.target, creationflags=NO_WINDOW | 0x00000008)
         self.progress.emit(100, '')
 
 

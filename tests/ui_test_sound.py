@@ -1,35 +1,22 @@
-"""Автотест звука: режим «Звук везде» в настройках лаунчера (pywinauto + IPC плеера mpv)."""
+"""Автотест звука: режим «Звук везде» в настройках лаунчера (pywinauto + IPC плеера движка)."""
 import json
 import os
 import subprocess
 import sys
 import time
 
-from pywinauto import Application, Desktop
+from pywinauto import Application
+
+import mpv_ipc
 
 EXE = os.path.expandvars(r'%LOCALAPPDATA%\Programs\Mimi Wallpapers\MimiWallpapers.exe')
 CFG = os.path.expandvars(r'%LOCALAPPDATA%\MimiWallpapers\config.json')
-LS = os.path.expandvars(r'%LOCALAPPDATA%\Lively Wallpaper\Settings.json')
 results = []
 
 
 def check(name, ok, info=''):
     results.append(ok)
     print(('PASS ' if ok else 'FAIL ') + name + (f' — {info}' if info else ''), flush=True)
-
-
-def mpv_volume():
-    ps = ("$m=Get-CimInstance Win32_Process -Filter \"Name='mpv.exe'\" | Select-Object -First 1; "
-          "$pipe=($m.CommandLine -replace '.*--input-ipc-server=(\\S+).*','$1'); "
-          "$c=New-Object System.IO.Pipes.NamedPipeClientStream('.',$pipe,[System.IO.Pipes.PipeDirection]::InOut); $c.Connect(3000); "
-          "$w=New-Object System.IO.StreamWriter($c); $r=New-Object System.IO.StreamReader($c); $w.AutoFlush=$true; "
-          "$w.WriteLine('{\"command\":[\"get_property\",\"volume\"]}'); $l=$r.ReadLine(); "
-          "while($l -notmatch '\"data\"|\"error\"'){$l=$r.ReadLine()}; $c.Close(); $l")
-    out = subprocess.run(['powershell', '-NoProfile', '-Command', ps], capture_output=True, text=True).stdout
-    try:
-        return json.loads(out.strip().splitlines()[-1])['data']
-    except Exception:
-        return None
 
 
 def set_mode(win, everywhere):
@@ -41,30 +28,28 @@ def set_mode(win, everywhere):
     if bool(cb.get_toggle_state()) != everywhere:
         cb.click_input()
     dlg.child_window(title='Сохранить', control_type='Button').click_input()
-    time.sleep(16)                          # Lively перезапускается, обои и громкость возвращаются
     win.set_focus()
-    time.sleep(3)
+    time.sleep(2)                           # движок замечает новый config.json за полсекунды
 
 
-cfg = json.load(open(CFG, encoding='utf-8'))
+cfg = json.load(open(CFG, encoding='utf-8-sig'))
 check('звук в лаунчере включён', cfg.get('sound') is True, f"громкость {cfg.get('volume')}")
-subprocess.run(['taskkill', '/f', '/im', 'MimiWallpapers.exe'], capture_output=True)
+# закрываем только окно лаунчера: у движка то же имя процесса, его не трогаем
+subprocess.run(['taskkill', '/f', '/fi', 'IMAGENAME eq MimiWallpapers.exe', '/fi', 'WINDOWTITLE eq Mimi Wallpapers'],
+               capture_output=True)
 app = Application(backend='uia').start(EXE)
 win = app.window(title='Mimi Wallpapers')
 win.wait('visible', timeout=30)
-time.sleep(3)
+time.sleep(4)
+check('движок обоев работает', bool(mpv_ipc.pipes()), ', '.join(mpv_ipc.pipes()))
 
 set_mode(win, True)
-v = mpv_volume()
-ls = json.load(open(LS, encoding='utf-8'))
-check('«Звук везде»: Lively не глушит звук в окнах', ls.get('AudioOnlyOnDesktop') is False)
-check('«Звук везде»: громкость есть при открытом окне', bool(v) and v > 0, f'громкость плеера {v}')
+check('«Звук везде»: при открытом окне звук есть', mpv_ipc.get('mute') is False, f"mute={mpv_ipc.get('mute')}")
+check('громкость плеера = громкость из настроек', mpv_ipc.get('volume') == cfg.get('volume'),
+      f"{mpv_ipc.get('volume')} / {cfg.get('volume')}")
 
 set_mode(win, False)
-v = mpv_volume()
-ls = json.load(open(LS, encoding='utf-8'))
-check('по умолчанию: звук только на рабочем столе', ls.get('AudioOnlyOnDesktop') is True)
-check('по умолчанию: при открытом окне тихо', v == 0, f'громкость плеера {v}')
+check('по умолчанию: при открытом окне тихо', mpv_ipc.get('mute') is True, f"mute={mpv_ipc.get('mute')}")
 
 win.close()
 print('\nИТОГ:', sum(results), 'из', len(results))

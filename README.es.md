@@ -19,7 +19,10 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 - **Solo el canal de Typh**: puedes añadir videos nuevos por enlace, pero solo del canal de Typh. La aplicación comprueba el ID del canal.
 - **Descarga en máxima calidad**: hasta 4K a 60 fps con sonido, con [yt-dlp](https://github.com/yt-dlp/yt-dlp). La barra de progreso nunca retrocede.
 - **Sin créditos largos**: los créditos del final del video se recortan automáticamente tras la descarga, sin pérdida de calidad.
-- **Fondo animado**: un clic pone el video en el escritorio en bucle, con [Lively Wallpaper](https://github.com/rocksdanister/lively) y decodificación por hardware.
+- **Motor de fondos propio**: un clic pone el video en el escritorio bajo los iconos, en bucle y con decodificación por hardware (basado en [mpv](https://mpv.io)). No hace falta Lively Wallpaper ni otras apps de fondos.
+  - fondo en cada monitor;
+  - se pausa mientras hay un juego o video a pantalla completa, para no gastar la GPU;
+  - cambia de video sin parpadeos y vuelve solo si se reinicia el Explorador.
 - **Pantalla de bloqueo**: eliges un fotograma con un deslizador y se aplica en resolución completa, sin permisos de administrador.
 - **Sonido sí/no** y volumen del fondo. Por defecto solo suena en el escritorio vacío; activa **«Sonido en todas partes»** en Ajustes para oírlo en cualquier ventana o pestaña.
 - **Iniciar con Windows**: tu último fondo vuelve tras reiniciar.
@@ -29,7 +32,7 @@ Proyecto de fans gratuito y sin ánimo de lucro de **MimiFanStudio**.
 ## Instalación
 1. Descarga `MimiWallpapers_Setup_public.exe` desde [Releases](../../releases).
 2. Ejecútalo, elige el idioma, acepta las condiciones y pulsa **Instalar**.
-   Si hace falta, el instalador añade Lively Wallpaper, yt-dlp y FFmpeg desde el catálogo oficial `winget` de Windows.
+   Si hace falta, el instalador añade mpv, yt-dlp y FFmpeg desde el catálogo oficial `winget` de Windows.
 3. Abre **Mimi Wallpapers**, elige un video y pulsa **Descargar** → **Poner de fondo**.
 
 Requisitos: Windows 10/11 x64 y conexión a internet.
@@ -50,6 +53,7 @@ El diseño con Mimi (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`)
 | Ruta | Qué es |
 |---|---|
 | `launcher/mimi_launcher.py` | el lanzador (Python + PySide6) |
+| `launcher/engine.py` | el motor de fondos (funciona en segundo plano como `MimiWallpapers.exe --engine`) |
 | `launcher/setup.py` | el instalador |
 | `launcher/common.py` | rutas comunes, estilo, fondo animado |
 | `launcher/i18n.py` | traducciones, condiciones de uso, ID del canal de Typh |
@@ -62,13 +66,14 @@ El diseño con Mimi (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`)
 
 ## Pruebas
 ```powershell
-.venv\Scripts\python tests\ui_test_launcher.py   # 15 comprobaciones
+.venv\Scripts\python tests\ui_test_launcher.py   # 14 comprobaciones
 .venv\Scripts\python tests\ui_test_setup.py      # 17 comprobaciones
 .venv\Scripts\python tests\ui_test_sound.py      # 5 comprobaciones
+.venv\Scripts\python tests\test_engine.py         # 15 comprobaciones: motor
 ```
 
 ## Condiciones y licencia
 - [Condiciones de uso](TERMS.md#español) (también se muestran en el instalador y en la aplicación).
 - Código fuente: [MIT](LICENSE) © 2026 MimiFanStudio.
 - Mimi y las animaciones: © Typh, usados con permiso. La licencia MIT no se aplica a ellos.
-- Software de terceros: Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL), Qt for Python / PySide6 (LGPL-3.0).
+- Software de terceros: mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL), Qt for Python / PySide6 (LGPL-3.0).

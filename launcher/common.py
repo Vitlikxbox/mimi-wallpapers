@@ -19,7 +19,6 @@ DATA_DIR = os.path.join(os.environ.get('LOCALAPPDATA', APP_DIR), 'MimiWallpapers
 VIDEO_DIR = os.path.join(DATA_DIR, 'videos')
 THUMB_DIR = os.path.join(DATA_DIR, 'thumbs')
 CONFIG = os.path.join(DATA_DIR, 'config.json')
-LIVELY = r'C:\Program Files\Lively Wallpaper\Lively.exe'
 WINGET_LINKS = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Microsoft', 'WinGet', 'Links')
 UNINSTALL_KEY = r'Software\Microsoft\Windows\CurrentVersion\Uninstall\MimiWallpapers'
 NO_WINDOW = 0x08000000
@@ -36,8 +35,9 @@ def asset(*names, base=None):
 
 
 def tool(name):
-    """yt-dlp / ffmpeg / ffprobe: из папки программы, из папки winget или из PATH."""
-    for d in (os.path.join(APP_DIR, 'tools'), APP_DIR, WINGET_LINKS):
+    """yt-dlp / ffmpeg / ffprobe / mpv: из папки программы, из папки winget или из PATH."""
+    for d in (os.path.join(APP_DIR, 'tools'), APP_DIR, WINGET_LINKS,
+              os.path.join(os.environ.get('ProgramFiles', r'C:\Program Files'), 'MPV Player')):
         p = os.path.join(d, name + '.exe')
         if os.path.exists(p):
             return p
@@ -51,7 +51,7 @@ def run(args, timeout=120):
 
 def load_json(path, default):
     try:
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding='utf-8-sig') as f:       # -sig: файл мог сохранить редактор с BOM
             return json.load(f)
     except Exception:
         return default
@@ -65,8 +65,10 @@ def load_config():
 
 def save_config(cfg):
     os.makedirs(DATA_DIR, exist_ok=True)
-    with open(CONFIG, 'w', encoding='utf-8') as f:
+    tmp = CONFIG + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(cfg, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, CONFIG)                                   # целиком и сразу: движок не прочитает половину файла
 
 
 def shortcut(lnk, target, args='', icon='', workdir=''):

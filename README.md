@@ -19,7 +19,10 @@ A free, non-commercial fan project by **MimiFanStudio**.
 - **Only Typh's channel**: you can add new videos by link, but only from Typh's channel. The app checks the YouTube channel ID.
 - **Best quality download**: up to 4K 60 fps with sound, via [yt-dlp](https://github.com/yt-dlp/yt-dlp). The progress bar never goes backwards.
 - **No long end credits**: credits at the end of a video are cut automatically after download (lossless).
-- **Live wallpaper**: one click sets the video on your desktop in a loop, via [Lively Wallpaper](https://github.com/rocksdanister/lively), with hardware decoding.
+- **Our own wallpaper engine**: one click puts the video on your desktop under the icons, in a loop, with hardware decoding (built on [mpv](https://mpv.io)). No Lively Wallpaper or other wallpaper apps needed.
+  - every monitor gets the wallpaper;
+  - pauses while a fullscreen game or video is open, to save the GPU;
+  - switches videos without flicker and comes back after Explorer restarts.
 - **Lock screen**: pick any frame with a slider; it is set in full resolution with no admin rights.
 - **Sound on/off** and wallpaper volume. By default sound plays only on the empty desktop; turn on **Sound everywhere** in Settings to hear it in any window or browser tab.
 - **Start with Windows**: your last wallpaper comes back after a reboot.
@@ -29,7 +32,7 @@ A free, non-commercial fan project by **MimiFanStudio**.
 ## Install
 1. Download `MimiWallpapers_Setup_public.exe` from [Releases](../../releases).
 2. Run it, choose your language, accept the terms and click **Install**.
-   If needed, the installer adds Lively Wallpaper, yt-dlp and FFmpeg from the official Windows `winget` catalog.
+   If needed, the installer adds mpv, yt-dlp and FFmpeg from the official Windows `winget` catalog.
 3. Open **Mimi Wallpapers**, pick a video, then **Download** → **Set as wallpaper**.
 
 Requirements: Windows 10/11 x64, internet connection.
@@ -50,6 +53,7 @@ The Mimi artwork (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) is
 | Path | What it is |
 |---|---|
 | `launcher/mimi_launcher.py` | the launcher (Python + PySide6) |
+| `launcher/engine.py` | the wallpaper engine (runs in the background as `MimiWallpapers.exe --engine`) |
 | `launcher/setup.py` | the setup wizard |
 | `launcher/common.py` | shared paths, style, animated background |
 | `launcher/i18n.py` | translations, terms of use, Typh channel ID |
@@ -62,13 +66,14 @@ The Mimi artwork (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) is
 
 ## Tests
 ```powershell
-.venv\Scripts\python tests\ui_test_launcher.py   # 15 checks
+.venv\Scripts\python tests\ui_test_launcher.py   # 14 checks
 .venv\Scripts\python tests\ui_test_setup.py      # 17 checks
 .venv\Scripts\python tests\ui_test_sound.py      # 5 checks
+.venv\Scripts\python tests\test_engine.py         # 15 checks: engine
 ```
 
 ## Terms & license
 - [Terms of use](TERMS.md#english) (also shown in the setup wizard and inside the app).
 - Source code: [MIT](LICENSE) © 2026 MimiFanStudio.
 - Mimi and the animations: © Typh, used with permission. The MIT license does not apply to them.
-- Third-party software: Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL), Qt for Python / PySide6 (LGPL-3.0).
+- Third-party software: mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL), Qt for Python / PySide6 (LGPL-3.0).

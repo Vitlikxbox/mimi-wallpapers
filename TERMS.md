@@ -13,7 +13,7 @@
 
 **4. Your responsibility.** You are responsible for complying with the laws of your country and YouTube’s terms when downloading videos. If the rights holder asks us to stop using their works, the project will be changed or discontinued.
 
-**5. Third-party software.** The app uses Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) and Qt / PySide6 (LGPL-3.0). These belong to their respective authors.
+**5. Third-party software.** The app uses mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) and Qt / PySide6 (LGPL-3.0). These belong to their respective authors.
 
 **6. No warranty.** The software is provided “as is”, without warranty of any kind. MimiFanStudio is not liable for any damage, data loss or malfunction arising from its use.
 
@@ -36,7 +36,7 @@ By installing or using the app you agree to these terms.
 
 **4. Ответственность пользователя.** Вы самостоятельно отвечаете за соблюдение законов вашей страны и правил YouTube при скачивании видео. Если правообладатель попросит прекратить использование его работ, проект будет изменён или закрыт.
 
-**5. Сторонние программы.** Программа использует Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) и Qt / PySide6 (LGPL-3.0). Права на них принадлежат их авторам.
+**5. Сторонние программы.** Программа использует mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) и Qt / PySide6 (LGPL-3.0). Права на них принадлежат их авторам.
 
 **6. Без гарантий.** Программа предоставляется «как есть», без каких-либо гарантий. MimiFanStudio не отвечает за возможные убытки, потерю данных или неполадки, связанные с её использованием.
 
@@ -59,7 +59,7 @@ By installing or using the app you agree to these terms.
 
 **4. Tu responsabilidad.** Eres responsable de cumplir las leyes de tu país y las condiciones de YouTube al descargar videos. Si el titular de los derechos pide dejar de usar sus obras, el proyecto se modificará o se cerrará.
 
-**5. Software de terceros.** La aplicación usa Lively Wallpaper (GPL-3.0), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) y Qt / PySide6 (LGPL-3.0). Pertenecen a sus respectivos autores.
+**5. Software de terceros.** La aplicación usa mpv (GPL-2.0+), yt-dlp (Unlicense), FFmpeg (LGPL/GPL) y Qt / PySide6 (LGPL-3.0). Pertenecen a sus respectivos autores.
 
 **6. Sin garantía.** El software se ofrece “tal cual”, sin garantía de ningún tipo. MimiFanStudio no se hace responsable de daños, pérdida de datos o fallos derivados de su uso.
 

@@ -4,6 +4,7 @@ import subprocess
 import sys
 import time
 
+import mpv_ipc
 from pywinauto import Application, Desktop
 
 EXE = os.path.expandvars(r'%LOCALAPPDATA%\Programs\Mimi Wallpapers\MimiWallpapers.exe')
@@ -136,8 +137,7 @@ check('переключатель звука', before != after and s.window_text
 win.child_window(title_re='.*Поставить на обои', control_type='Button').click_input()
 check('поставить на обои', bool(wait_text(win, 'Обои установлены', 10)))
 time.sleep(4)
-mpv = subprocess.run(['powershell', '-NoProfile', '-Command', "(Get-CimInstance Win32_Process -Filter \"Name='mpv.exe'\").CommandLine"], capture_output=True, text=True).stdout
-check('Lively играет выбранный ролик', 'LGHCB5VUeOU' in mpv)
+check('движок играет выбранный ролик', 'LGHCB5VUeOU' in (mpv_ipc.get('path') or ''), str(mpv_ipc.get('path')))
 
 # --- экран блокировки
 win.child_window(title_re='.*экран блокировки', control_type='Button').click_input()

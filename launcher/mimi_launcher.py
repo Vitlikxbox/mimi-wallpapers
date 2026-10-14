@@ -1,16 +1,14 @@
 """Mimi Wallpapers — лаунчер живых обоев с Mimi (персонаж аниматора Typh). © 2026 MimiFanStudio.
 
-Каталог роликов Typh → скачивание в лучшем качестве (yt-dlp) → обои на рабочий стол (Lively Wallpaper),
+Каталог роликов Typh → скачивание в лучшем качестве (yt-dlp) → обои на рабочий стол (свой движок, launcher/engine.py),
 кадр на экран блокировки, звук вкл/выкл, автозапуск, языки RU/EN/ES. Фон окна — зацикленное видео с Mimi.
 
-Ключи запуска:  --apply-current (автозагрузка, без окна) · --download <id> · --uninstall
+Ключи запуска:  --engine (движок обоев в фоне; старое имя --apply-current) · --download <id> · --uninstall
 """
-import json
 import os
 import re
 import subprocess
 import sys
-import time
 import urllib.request
 import winreg
 
@@ -20,7 +18,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog, QFra
                                QLineEdit, QMessageBox, QProgressBar, QPushButton, QScrollArea, QSlider, QTextBrowser,
                                QVBoxLayout, QWidget)
 
-from common import (APP_DIR, APP_NAME, CONFIG, DATA_DIR, FROZEN, LIVELY, NO_WINDOW, STYLE, THUMB_DIR, UNINSTALL_KEY,
+import engine
+from common import (APP_DIR, APP_NAME, CONFIG, DATA_DIR, FROZEN, NO_WINDOW, STYLE, THUMB_DIR, UNINSTALL_KEY,
                     VIDEO_DIR, AnimatedBackground, asset, load_config, load_json, run, save_config, shortcut, tool)
 from i18n import COMPANY, LANGS, TERMS, TYPH_CHANNEL_ID, VERSION, tr
 
@@ -69,46 +68,7 @@ def dl_args(vid):
     return args + [f'https://www.youtube.com/watch?v={vid}']
 
 
-# ------------------------------------------------------------------ Lively и Windows
-def lively_ok():
-    return os.path.exists(LIVELY)
-
-
-def lively_set(path):
-    subprocess.Popen([LIVELY, 'setwp', '--file', path], creationflags=NO_WINDOW)
-
-
-def lively_volume(v):
-    subprocess.Popen([LIVELY, 'app', '--volume', str(int(v))], creationflags=NO_WINDOW)
-
-
-LIVELY_SETTINGS = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Lively Wallpaper', 'Settings.json')
-
-
-def lively_audio_ok(only_desktop, volume):
-    s = load_json(LIVELY_SETTINGS, {})
-    return s.get('AudioOnlyOnDesktop') == only_desktop and s.get('AudioVolumeGlobal') == int(volume)
-
-
-def lively_audio_setup(only_desktop, volume):
-    """Звук обоев в Lively: «только на рабочем столе» вкл/выкл и общая громкость.
-    Lively читает Settings.json при запуске и перезаписывает при выходе, поэтому: закрыть → править → запустить.
-    Возвращает True, если Lively перезапускалась (обои она восстановит сама)."""
-    if lively_audio_ok(only_desktop, volume) or not lively_ok():
-        return False
-    run(['taskkill', '/f', '/im', 'Lively.exe'])
-    time.sleep(1.5)
-    s = load_json(LIVELY_SETTINGS, {})
-    if not s:
-        return False
-    s['AudioOnlyOnDesktop'] = bool(only_desktop)
-    s['AudioVolumeGlobal'] = int(volume)
-    with open(LIVELY_SETTINGS, 'w', encoding='utf-8') as f:
-        json.dump(s, f, ensure_ascii=False, indent=2)
-    subprocess.Popen(['explorer.exe', LIVELY])            # без прав администратора, как обычный запуск
-    return True
-
-
+# ------------------------------------------------------------------ обои и Windows
 LOCK_PS = r'''
 Add-Type -AssemblyName System.Runtime.WindowsRuntime
 $asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' })[0]
@@ -155,24 +115,10 @@ def set_autostart(enabled):
             os.remove(lnk)
         return
     if FROZEN:
-        shortcut(lnk, sys.executable, '--apply-current', workdir=APP_DIR)
+        shortcut(lnk, sys.executable, '--engine', workdir=APP_DIR)
     else:
         shortcut(lnk, sys.executable.replace('python.exe', 'pythonw.exe'),
-                 f'"{os.path.abspath(__file__)}" --apply-current', workdir=APP_DIR)
-
-
-def apply_current():
-    cfg = load_config()
-    p = video_path(cfg.get('current')) if cfg.get('current') else None
-    if p and lively_ok():
-        if 'Lively.exe' not in run(['tasklist', '/fi', 'imagename eq Lively.exe']).stdout:
-            subprocess.Popen([LIVELY], creationflags=NO_WINDOW)
-            time.sleep(8)
-        if cfg.get('sound') and lively_audio_setup(not cfg.get('audio_everywhere', False), cfg.get('volume', 60)):
-            time.sleep(8)
-        lively_set(p)
-        time.sleep(3)
-        lively_volume(cfg.get('volume', 60) if cfg.get('sound') else 0)
+                 f'"{os.path.abspath(__file__)}" --engine', workdir=APP_DIR)
 
 
 BTN = {'yes': {'ru': 'Да', 'en': 'Yes', 'es': 'Sí'}, 'no': {'ru': 'Нет', 'en': 'No', 'es': 'No'}}
@@ -212,7 +158,8 @@ def uninstall():
     except OSError:
         pass
     top_box(tr('uninstall_done', lang), lang, ask=False)
-    # другие окна лаунчера держат файлы программы — закрываем их (кроме этого процесса)
+    # другие окна лаунчера и движок обоев держат файлы программы — закрываем их (кроме этого процесса);
+    # mpv привязаны к движку и закроются вместе с ним
     run(['taskkill', '/f', '/im', 'MimiWallpapers.exe', '/fi', f'PID ne {os.getpid()}'])
     # фоновый ffmpeg лаунчера мог остаться (если окно закрыли аварийно) — он держит файлы программы
     run(['powershell', '-NoProfile', '-Command',
@@ -401,8 +348,8 @@ class Launcher(AnimatedBackground):
         self._build()
         self._load_thumbs()
         self._play_bg()
-        if not lively_ok():
-            QTimer.singleShot(500, lambda: QMessageBox.warning(self, APP_NAME, tr('no_lively', self.lang)))
+        if not engine.mpv_ok():
+            QTimer.singleShot(500, lambda: QMessageBox.warning(self, APP_NAME, tr('no_mpv', self.lang)))
 
     def t(self, key, **kw):
         return tr(key, self.lang, **kw)
@@ -685,12 +632,11 @@ class Launcher(AnimatedBackground):
     # --- применение
     def apply(self):
         p = video_path(self.selected)
-        if not (p and lively_ok()):
+        if not (p and engine.mpv_ok()):
             return
-        lively_set(p)
-        QTimer.singleShot(3000, self._sync_sound)
         self.cfg['current'] = self.selected
-        save_config(self.cfg)
+        save_config(self.cfg)                      # движок сам увидит новый ролик в config.json
+        engine.start()
         if self.cfg.get('autostart', True):
             set_autostart(True)
         self._play_bg()
@@ -727,18 +673,9 @@ class Launcher(AnimatedBackground):
         self._sync_sound()
 
     def _sync_sound(self):
-        """Привести Lively к настройкам звука; если пришлось перезапустить Lively — вернуть обои и громкость."""
-        vol = self.cfg.get('volume', 60)
-        only_desk = not self.cfg.get('audio_everywhere', False)
-        if self.cfg.get('sound') and not lively_audio_ok(only_desk, vol):
-            self.msg.setText(self.t('sound_setup'))
-            QApplication.processEvents()
-            if lively_audio_setup(only_desk, vol):
-                cur = video_path(self.cfg.get('current')) if self.cfg.get('current') else None
-                QTimer.singleShot(7000, lambda: (cur and lively_set(cur)))
-                QTimer.singleShot(10000, lambda: (lively_volume(vol), self.msg.setText('')))
-                return
-        lively_volume(vol if self.cfg.get('sound') else 0)
+        """Звук и громкость движок берёт из config.json сам; здесь только убеждаемся, что он запущен."""
+        if self.cfg.get('current'):
+            engine.start()
 
     def toggle_autostart(self, on):
         self.cfg['autostart'] = on
@@ -777,8 +714,8 @@ def cli_download(vid):
 
 
 def main():
-    if '--apply-current' in sys.argv:
-        apply_current()
+    if '--engine' in sys.argv or '--apply-current' in sys.argv:
+        engine.main()
         return
     if '--download' in sys.argv:
         print(cli_download(sys.argv[sys.argv.index('--download') + 1]))
