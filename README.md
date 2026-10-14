@@ -69,7 +69,7 @@ The Mimi artwork (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`) is
 .venv\Scripts\python tests\ui_test_launcher.py   # 14 checks
 .venv\Scripts\python tests\ui_test_setup.py      # 17 checks
 .venv\Scripts\python tests\ui_test_sound.py      # 5 checks
-.venv\Scripts\python tests\test_engine.py         # 15 checks: engine
+.venv\Scripts\python tests\test_engine.py         # 19 checks: engine
 ```
 
 ## Terms & license

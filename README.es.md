@@ -69,7 +69,7 @@ El diseño con Mimi (`launcher_bg.mp4`, `setup_bg.webp`, `mimi.ico`, `mimi.png`)
 .venv\Scripts\python tests\ui_test_launcher.py   # 14 comprobaciones
 .venv\Scripts\python tests\ui_test_setup.py      # 17 comprobaciones
 .venv\Scripts\python tests\ui_test_sound.py      # 5 comprobaciones
-.venv\Scripts\python tests\test_engine.py         # 15 comprobaciones: motor
+.venv\Scripts\python tests\test_engine.py         # 19 comprobaciones: motor
 ```
 
 ## Condiciones y licencia

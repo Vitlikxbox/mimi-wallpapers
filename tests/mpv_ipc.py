@@ -22,5 +22,5 @@ def get(prop, idx=0):
             while b'"event"' in line:
                 line = p.readline()
         return json.loads(line).get('data')
-    except OSError:
+    except (OSError, ValueError):            # плеер закрывается или ещё не открыл канал
         return None

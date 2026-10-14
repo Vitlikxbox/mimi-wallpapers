@@ -117,53 +117,77 @@ def desktop_host():
     return progman, None
 
 
-def windows_of(pid, klass='mpv'):
-    found = []
-    proc = ctypes.WINFUNCTYPE(W.BOOL, W.HWND, W.LPARAM)
-
-    def cb(h, _l):
-        p = W.DWORD()
-        u32.GetWindowThreadProcessId(h, ctypes.byref(p))
-        if p.value == pid and cls(h) == klass:
-            found.append(h)
-        return True
-    u32.EnumWindows(proc(cb), 0)
-    return found
-
-
-def child_windows_of(parent, pid):
-    found = []
-    c = u32.FindWindowExW(parent, None, None, None)
+def children(host):
+    """Дочерние окна сверху вниз (по порядку наложения)."""
+    out, c = [], u32.FindWindowExW(host, None, None, None)
     while c:
-        p = W.DWORD()
-        u32.GetWindowThreadProcessId(c, ctypes.byref(p))
-        if p.value == pid:
-            found.append(c)
-        c = u32.FindWindowExW(parent, c, None, None)
-    return found
-
-
-def covered(host, hwnd):
-    """Лежит ли над окном видео слой WorkerW (картинка рабочего стола) — тогда видео не видно."""
-    c = u32.FindWindowExW(host, None, None, None)        # дочерние окна идут сверху вниз
-    while c and c != hwnd:
-        if cls(c) == 'WorkerW':
-            return True
+        out.append(c)
         c = u32.FindWindowExW(host, c, None, None)
-    return False
+    return out
 
 
-def embed(hwnd, host, below, mon):
-    """Сделать окно mpv дочерним окном рабочего стола и растянуть на монитор."""
-    style = u32.GetWindowLongPtrW(hwnd, GWL_STYLE)
-    u32.SetWindowLongPtrW(hwnd, GWL_STYLE, (style & ~(WS_POPUP | WS_CAPTION | WS_THICKFRAME)) | WS_CHILD | WS_VISIBLE)
-    ex = u32.GetWindowLongPtrW(hwnd, GWL_EXSTYLE)
-    u32.SetWindowLongPtrW(hwnd, GWL_EXSTYLE, (ex & ~WS_EX_APPWINDOW) | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE)
-    u32.SetParent(hwnd, host)
+def misplaced(host, hwnd, below):
+    """Видео не на своём месте: поверх ярлыков (закрывает рабочий стол) или под слоем WorkerW (видео не видно)."""
+    order = children(host)
+    if hwnd not in order:
+        return False
+    above = order[:order.index(hwnd)]
+    return bool(below and below not in above) or any(cls(c) == 'WorkerW' for c in above)
+
+
+WNDPROC_ADDR = ctypes.cast(u32.DefWindowProcW, ctypes.c_void_p).value
+HOST_CLASS = 'MimiWallpaperHost'
+_class_ready = False
+
+
+class WNDCLASSEXW(ctypes.Structure):
+    _fields_ = [('cbSize', W.UINT), ('style', W.UINT), ('lpfnWndProc', ctypes.c_void_p), ('cbClsExtra', ctypes.c_int),
+                ('cbWndExtra', ctypes.c_int), ('hInstance', W.HINSTANCE), ('hIcon', W.HICON), ('hCursor', W.HANDLE),
+                ('hbrBackground', W.HBRUSH), ('lpszMenuName', W.LPCWSTR), ('lpszClassName', W.LPCWSTR),
+                ('hIconSm', W.HICON)]
+
+
+u32.CreateWindowExW.restype = W.HWND
+u32.CreateWindowExW.argtypes = [W.DWORD, W.LPCWSTR, W.LPCWSTR, W.DWORD, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                ctypes.c_int, W.HWND, W.HMENU, W.HINSTANCE, W.LPVOID]
+u32.RegisterClassExW.argtypes = [ctypes.c_void_p]
+u32.DestroyWindow.argtypes = [W.HWND]
+k32.GetModuleHandleW.restype = W.HMODULE
+k32.GetModuleHandleW.argtypes = [W.LPCWSTR]
+
+
+def create_host(parent, below, mon):
+    """Окно-подложка для видео прямо внутри рабочего стола: у плеера нет своего окна,
+    поэтому его не видно на панели задач и в Alt+Tab и его нельзя случайно закрыть."""
+    global _class_ready
+    hinst = k32.GetModuleHandleW(None)
+    if not _class_ready:
+        wc = WNDCLASSEXW(cbSize=ctypes.sizeof(WNDCLASSEXW), lpfnWndProc=WNDPROC_ADDR, hInstance=hinst,
+                         hbrBackground=ctypes.windll.gdi32.GetStockObject(4), lpszClassName=HOST_CLASS)  # BLACK_BRUSH
+        u32.RegisterClassExW(ctypes.byref(wc))
+        _class_ready = True
     pt = (W.POINT * 2)(W.POINT(mon[0], mon[1]), W.POINT(mon[2], mon[3]))
-    u32.MapWindowPoints(None, host, pt, 2)                 # экранные координаты → координаты внутри host
-    u32.SetWindowPos(hwnd, below or None, pt[0].x, pt[0].y, pt[1].x - pt[0].x, pt[1].y - pt[0].y,
-                     SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_FRAMECHANGED)
+    u32.MapWindowPoints(None, parent, pt, 2)               # экранные координаты → координаты внутри рабочего стола
+    h = u32.CreateWindowExW(WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW, HOST_CLASS, 'Mimi Wallpaper',
+                            WS_CHILD | WS_VISIBLE | 0x02000000 | 0x04000000,  # CLIPCHILDREN | CLIPSIBLINGS
+                            pt[0].x, pt[0].y, pt[1].x - pt[0].x, pt[1].y - pt[0].y, parent, None, hinst, None)
+    if h:
+        u32.SetWindowPos(h, below or None, 0, 0, 0, 0, SWP_NOACTIVATE | 0x1 | 0x2)
+    return h
+
+
+def pump(seconds):
+    """Ждать, обрабатывая сообщения своих окон (окна живут внутри Проводника — без этого он бы подвисал)."""
+    end = time.time() + seconds
+    msg = W.MSG()
+    while True:
+        while u32.PeekMessageW(ctypes.byref(msg), None, 0, 0, 1):   # PM_REMOVE
+            u32.TranslateMessage(ctypes.byref(msg))
+            u32.DispatchMessageW(ctypes.byref(msg))
+        left = end - time.time()
+        if left <= 0:
+            return
+        u32.MsgWaitForMultipleObjects(0, None, False, int(left * 1000), 0x04FF)  # QS_ALLINPUT
 
 
 class Job:
@@ -191,16 +215,15 @@ class Job:
 class Player:
     """Один mpv на одном мониторе."""
 
-    def __init__(self, idx, video, mon, cfg, job):
-        self.idx, self.video, self.mon = idx, video, mon
+    def __init__(self, idx, video, mon, cfg, job, parent, below):
+        self.idx, self.video, self.mon, self.parent = idx, video, mon, parent
         self.pipe = rf'\\.\pipe\mimi-wallpaper-{os.getpid()}-{idx}-{int(time.time() * 1000)}'
-        self.hwnd = None
+        self.hwnd = create_host(parent, below, mon)
         self.state = {}
-        args = [tool('mpv'), video, '--config=no', '--loop-file=inf', '--hwdec=auto-safe', '--no-border',
-                '--force-window=immediate', '--geometry=320x180+-32000+-32000', '--keepaspect-window=no',
+        args = [tool('mpv'), video, '--config=no', f'--wid={self.hwnd or 0}', '--loop-file=inf', '--hwdec=auto-safe',
                 '--panscan=1.0', '--osc=no', '--osd-level=0', '--input-default-bindings=no',
-                '--input-vo-keyboard=no', '--cursor-autohide=no', '--taskbar-progress=no', '--focus-on=never',
-                '--title=Mimi Wallpaper', f'--input-ipc-server={self.pipe}', '--really-quiet', '--no-terminal',
+                '--input-vo-keyboard=no', '--input-cursor=no', '--cursor-autohide=no', '--taskbar-progress=no',
+                f'--input-ipc-server={self.pipe}', '--really-quiet', '--no-terminal',
                 '--mute=yes', f"--volume={int(cfg.get('volume', 60))}", '--audio-display=no']
         if idx:
             args.append('--aid=no')                            # звук только с основного монитора
@@ -210,21 +233,16 @@ class Player:
         log('mpv', idx, 'pid', self.proc.pid, video, mon)
 
     def alive(self):
-        return self.proc.poll() is None
+        return self.proc.poll() is None and bool(self.hwnd) and bool(u32.IsWindow(self.hwnd))
 
     def attach(self, host, below):
-        """Встроить окно (или проверить, что оно ещё встроено)."""
-        if self.hwnd and u32.IsWindow(self.hwnd) and u32.GetParent(self.hwnd) == host:
-            if covered(host, self.hwnd):                    # кто-то поднял слой фона (WorkerW) над видео
-                u32.SetWindowPos(self.hwnd, below or None, 0, 0, 0, 0, SWP_NOACTIVATE | 0x1 | 0x2)  # NOSIZE|NOMOVE
-                log('видео снова поднято под ярлыки', self.idx)
-            return True
-        hs = windows_of(self.proc.pid) or child_windows_of(host, self.proc.pid)
-        if not hs:
+        """Проверить, что видео на месте: в нужном окне рабочего стола, под ярлыками и над слоем WorkerW.
+        False — рабочий стол пересоздан (перезапуск Проводника), плеер надо запустить заново."""
+        if host != self.parent or u32.GetParent(self.hwnd) != host:
             return False
-        self.hwnd = hs[0]
-        embed(self.hwnd, host, below, self.mon)
-        log('встроено', self.idx, hex(self.hwnd), 'в', cls(host), hex(host))
+        if misplaced(host, self.hwnd, below):
+            u32.SetWindowPos(self.hwnd, below or None, 0, 0, 0, 0, SWP_NOACTIVATE | 0x1 | 0x2)  # NOSIZE|NOMOVE
+            log('видео возвращено под ярлыки', self.idx)
         return True
 
     def command(self, *cmd):
@@ -254,8 +272,10 @@ class Player:
             pass                                               # mpv ещё не открыл pipe — повторим в следующий раз
 
     def stop(self):
-        if self.alive():
+        if self.proc.poll() is None:
             self.proc.kill()
+        if self.hwnd and u32.IsWindow(self.hwnd):
+            u32.DestroyWindow(self.hwnd)
 
 
 def set_static_wallpaper(image):
@@ -344,15 +364,12 @@ def close_lively():
         log('Lively Wallpaper закрыта: обои теперь показывает Mimi Wallpapers')
 
 
-def foreign_wallpaper(host, our_pids):
+def foreign_wallpaper(host, our_windows):
     """Встроил ли кто-то ещё (Lively) своё окно в рабочий стол — например, если Lively стартовала после нас."""
     c = u32.FindWindowExW(host, None, None, None)
     while c:
-        if cls(c) not in ('SHELLDLL_DefView', 'WorkerW'):
-            pid = W.DWORD()
-            u32.GetWindowThreadProcessId(c, ctypes.byref(pid))
-            if pid.value not in our_pids:
-                return True
+        if cls(c) not in ('SHELLDLL_DefView', 'WorkerW', HOST_CLASS) and c not in our_windows:
+            return True
         c = u32.FindWindowExW(host, c, None, None)
     return False
 
@@ -406,26 +423,24 @@ def main():
                 if want != video and players and now_mons == mons and all(p.alive() for p in players) \
                         and all(p.load(want) for p in players):
                     video = want
-                if want != video or now_mons != mons or any(not p.alive() for p in players):
-                    for p in players:
-                        p.stop()
-                    video, mons = want, now_mons
-                    players = [Player(i, video, m, cfg, job) for i, m in enumerate(mons)]
-                    host = None
-                # 3. встраивание (и после перезапуска Проводника)
+                # 3. рабочий стол (заново — раз в 5 с и после перезапуска Проводника)
                 if host is None or not u32.IsWindow(host) or time.time() - last_host_check > 5:
                     host, below = desktop_host()
                     last_host_check = time.time()
-                    ours = {p.proc.pid for p in players}
-                    if foreign_wallpaper(host, ours):
+                    if foreign_wallpaper(host, {p.hwnd for p in players}):
                         close_lively()
-                for p in players:
-                    p.attach(host, below)
+                restart = any(not p.attach(host, below) for p in players)
+                if want != video or now_mons != mons or restart or any(not p.alive() for p in players):
+                    for p in players:
+                        p.stop()
+                    video, mons = want, now_mons
+                    players = [Player(i, video, m, cfg, job, host, below) for i, m in enumerate(mons)]
+                    log('плееры запущены в', cls(host), hex(host or 0), [hex(p.hwnd or 0) for p in players])
                 # 4. звук и пауза
                 fg = u32.GetForegroundWindow()
                 fg_pid = W.DWORD()
                 u32.GetWindowThreadProcessId(fg, ctypes.byref(fg_pid))
-                if fg_pid.value in {p.proc.pid for p in players}:
+                if fg_pid.value in {p.proc.pid for p in players} | {os.getpid()}:
                     fg = None                              # активно окно наших же обоев — это тот же рабочий стол
                 on_desktop = (not fg) or cls(fg) in DESKTOP_CLASSES
                 sound = bool(cfg.get('sound'))
@@ -445,7 +460,7 @@ def main():
                 log(traceback.format_exc())
                 host = None
                 time.sleep(1)
-            time.sleep(0.5)
+            pump(0.5)
     finally:
         for p in players:
             p.stop()

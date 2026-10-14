@@ -1,4 +1,5 @@
 """Автотест установщика и удаления Mimi Wallpapers (pywinauto, UI Automation)."""
+import atexit
 import os
 import subprocess
 import sys
@@ -68,6 +69,25 @@ def open_setup():
     time.sleep(2)
     return app, win
 
+
+def restore_install():
+    """Страховка: если тест упал посреди удаления/установки, вернуть программу пользователю (тихо, без окон)."""
+    if os.path.exists(EXE):
+        return
+    subprocess.run(['taskkill', '/f', '/im', os.path.basename(SETUP)], capture_output=True)
+    print('тест не довёл установку до конца — ставлю программу обратно', flush=True)
+    code = ("import sys; sys.path.insert(0, r'%s')\n"
+            "from PySide6.QtCore import QCoreApplication\n"
+            "app = QCoreApplication(sys.argv)\n"
+            "import setup\n"
+            "setup.RES_DIR = r'%s'\n"
+            "w = setup.Worker(setup.DEFAULT_DIR, {'desktop': True, 'startmenu': True, 'autostart': True, 'deps': False}, 'ru')\n"
+            "w.done.connect(lambda ok, e: (print('восстановлено:', ok, e), app.quit())); w.start(); app.exec()\n"
+            % (os.path.join(ROOT, 'launcher'), os.path.join(ROOT, 'build')))
+    subprocess.run([sys.executable, '-c', code])
+
+
+atexit.register(restore_install)
 
 # ---------- 1. удаление (видео оставляем)
 subprocess.run(['taskkill', '/f', '/im', 'MimiWallpapers.exe'], capture_output=True)

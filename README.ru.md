@@ -69,7 +69,7 @@ powershell -ExecutionPolicy Bypass -File build.ps1 -Public
 .venv\Scripts\python tests\ui_test_launcher.py   # 14 проверок
 .venv\Scripts\python tests\ui_test_setup.py      # 17 проверок
 .venv\Scripts\python tests\ui_test_sound.py      # 5 проверок
-.venv\Scripts\python tests\test_engine.py         # 15 проверок: движок
+.venv\Scripts\python tests\test_engine.py         # 19 проверок: движок
 ```
 
 ## Условия и лицензия

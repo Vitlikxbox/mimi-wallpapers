@@ -24,6 +24,7 @@ results = []
 u32 = ctypes.windll.user32
 u32.GetParent.restype = ctypes.c_void_p
 u32.FindWindowW.restype = ctypes.c_void_p
+u32.FindWindowExW.restype = ctypes.c_void_p
 
 
 def check(name, ok, info=''):
@@ -69,6 +70,39 @@ def mpv_hwnd():
     return found, progman
 
 
+def cls_of(h):
+    b = ctypes.create_unicode_buffer(64)
+    u32.GetClassNameW(ctypes.c_void_p(h), b, 64)
+    return b.value
+
+
+def desktop_order():
+    """Классы дочерних окон Progman сверху вниз (только значимые)."""
+    progman = u32.FindWindowW('Progman', None)
+    out, c = [], u32.FindWindowExW(ctypes.c_void_p(progman), None, None, None)
+    while c:
+        if cls_of(c) in ('SHELLDLL_DefView', 'MimiWallpaperHost', 'WorkerW'):
+            out.append(cls_of(c))
+        c = u32.FindWindowExW(ctypes.c_void_p(progman), ctypes.c_void_p(c), None, None)
+    return out
+
+
+def order_ok():
+    """Ярлыки выше видео, видео выше любого слоя WorkerW."""
+    o = desktop_order()
+    if 'MimiWallpaperHost' not in o or 'SHELLDLL_DefView' not in o:
+        return False
+    i = o.index('MimiWallpaperHost')
+    return o.index('SHELLDLL_DefView') < i and 'WorkerW' not in o[:i]
+
+
+def top_level_mpv():
+    found = []
+    proc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    u32.EnumWindows(proc(lambda h, _: found.append(h) if cls_of(h) == 'mpv' else None or True), 0)
+    return found
+
+
 backup = open(CFG, encoding='utf-8-sig').read()
 orig = json.loads(backup)
 videos = [f[:-4] for f in os.listdir(os.path.join(DATA, 'videos')) if f.endswith('.mkv')]
@@ -86,12 +120,20 @@ try:
     wait(lambda: bool(mpv_hwnd()[0]), 10)
     hs, progman = mpv_hwnd()
     check('видео встроено в рабочий стол под ярлыки', bool(hs), f'окон mpv внутри Progman: {len(hs)}')
-    check('аппаратное декодирование', bool(mpv_ipc.get('hwdec-current')) and mpv_ipc.get('hwdec-current') != 'no',
-          str(mpv_ipc.get('hwdec-current')))
+    hw = None
+    wait(lambda: mpv_ipc.get('hwdec-current') not in (None, ''), 5)
+    hw = mpv_ipc.get('hwdec-current')
+    check('аппаратное декодирование', bool(hw) and hw != 'no', str(hw))
     t1 = mpv_ipc.get('time-pos') or 0
     check('видео идёт', wait(lambda: (mpv_ipc.get('time-pos') or 0) > t1 + 0.5 and mpv_ipc.get('pause') is False, 8),
           f"pause={mpv_ipc.get('pause')} time={mpv_ipc.get('time-pos')}")
     check('бесконечный повтор', mpv_ipc.get('loop-file') == 'inf')
+    check('у плеера нет окна на панели задач (нечего случайно закрыть)', not top_level_mpv())
+    check('порядок: ярлыки › видео › фон WorkerW', order_ok(), ' › '.join(desktop_order()))
+    subprocess.run(['taskkill', '/f', '/im', 'mpv.exe'], capture_output=True)   # плеер «вылетел»
+    check('плеер вылетел → движок запустил его снова', wait(lambda: mpv_ipc.get('path') is not None and bool(procs('mpv.exe')), 10))
+    check('после вылета видео снова под ярлыками', wait(order_ok, 5),
+          ' › '.join(desktop_order()))
 
     # 2. один экземпляр
     subprocess.Popen(ENGINE)
